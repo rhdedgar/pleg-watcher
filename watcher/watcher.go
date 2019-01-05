@@ -22,11 +22,6 @@ type PLEGBuffer struct {
 	bLine bytes.Buffer
 }
 
-//func (p *PLEGBuffer) Write(w io.Writer) (int, error) {
-//b, _ := json.Marshal(*p)
-//w.Write(b)
-//}
-
 func quoteVar(s string, r string) string {
 	return strings.Replace(s, r, "\""+r+"\"", 1)
 }
@@ -61,9 +56,8 @@ func CheckOutput(inputStr string) string {
 }
 
 func PLEGWatch() {
-	//var buffer PLEGBuffer //bytes.Buffer
-
 	var b bytes.Buffer
+
 	writer := bufio.NewWriter(&b)
 	reader := bufio.NewReader(&b)
 	path := "/var/log/journal"
@@ -86,9 +80,7 @@ func PLEGWatch() {
 	}
 	defer jr.Close()
 
-	//log.Printf("[INFO] journal: show last %v entries for %v", h.cfg.JournalNumEntries, name)
 	fmt.Println("=== begin journal ===")
-	//uTime := time.Date(2100, 11, 17, 0, 0, 0, 0, time.UTC)
 
 	until := make(chan time.Time)
 
@@ -103,9 +95,4 @@ func PLEGWatch() {
 	}
 	// shouldn't reach this block
 	fmt.Println("=== end journal ===")
-
-	//	if err := scanner.Err(); err != nil {
-	//		log.Printf("[ERROR] journal: %v", err)
-	//		return
-	//	}
 }

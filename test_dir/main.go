@@ -43,6 +43,14 @@ func main() {
 		// Gather only the unquoted json of the PLEG Event
 		out := strings.SplitAfter(fileStr, "&pleg.PodLifecycleEvent")[1]
 
+		//		locJson, err := json.Marshal(out)
+		//		if err != nil {
+		//			fmt.Println("error marshalling json:\n", err)
+		//		}
+
+		//		fmt.Println(string(locJson))
+		//		fmt.Println(json.Unmarshal(locJson, &plegEvent))
+
 		// Quote the json so it can be Unmarshaled into a struct
 		for _, item := range []string{"ID", "Type", "Data"} {
 			out = quoteVar(out, item)
