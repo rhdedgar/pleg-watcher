@@ -1,1 +1,0 @@
-2019-01-03 22:54:18.109506 +0000 UTC I0103 22:54:18.101053    3480 kubelet.go:1865] SyncLoop (PLEG): "bot-12-zdqzt_unofficialp1bot(70e5ecb5-fdd9-11e8-9d11-02ec8e61afcf)", event: &pleg.PodLifecycleEvent{ID:"70e5ecb5-fdd9-11e8-9d11-02ec8e61afcf", Type:"ContainerStarted", Data:"1407b26405a4f2731cf49c508a4cd0c40b0efc6b64386d1f6e04489abac48560"}

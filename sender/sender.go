@@ -10,12 +10,12 @@ import (
 )
 
 // SendData Marshals and POSTs json data to the URL designated in the config file.
-func SendData(mLabel models.Label) {
+func SendData(mStat models.Status) {
 	// TODO replace with variables from config/config.go package read from a config file
 	url := "http://127.0.0.1:8080"
 	fmt.Println("URL:>", url)
 
-	jsonStr, err := json.Marshal(mLabel)
+	jsonStr, err := json.Marshal(mStat)
 	if err != nil {
 		fmt.Println(err)
 	}

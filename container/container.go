@@ -31,6 +31,6 @@ func ProcessContainer(containerID string) {
 	}
 
 	if container.Status.State == "CONTAINER_RUNNING" {
-		sender.SendData(container.Status.Labels)
+		sender.SendData(container)
 	}
 }
