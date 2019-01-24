@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -60,7 +61,7 @@ func PLEGWatch() {
 
 	writer := bufio.NewWriter(&b)
 	reader := bufio.NewReader(&b)
-	path := "/var/log/journal"
+	path := os.Getenv("JOURNAL_PATH")
 
 	jcfg := sdjournal.JournalReaderConfig{
 		NumFromTail: 10,
@@ -80,12 +81,13 @@ func PLEGWatch() {
 	}
 	defer jr.Close()
 
-	fmt.Println("=== begin journal ===")
+	fmt.Println("=== Watching journal ===")
 
 	until := make(chan time.Time)
 
-	jr.Follow(until, writer) //buffer)
+	jr.Follow(until, writer)
 	scanner := bufio.NewScanner(reader)
+
 	for scanner.Scan() {
 		fmt.Println(scanner.Text())
 		event := CheckOutput(scanner.Text())
@@ -93,6 +95,4 @@ func PLEGWatch() {
 			go ProcessContainer(event)
 		}
 	}
-	// shouldn't reach this block
-	fmt.Println("=== end journal ===")
 }

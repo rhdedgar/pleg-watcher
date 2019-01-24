@@ -7,13 +7,12 @@ import (
 	"github.com/rhdedgar/pleg-watcher/models"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
-// SendData Marshals and POSTs json data to the URL designated in the config file.
+// SendData Marshals and POSTs json data to the pod-logger service.
 func SendData(mStat models.Status) {
-	// TODO replace with variables from config/config.go package read from a config file
-	url := "http://127.0.0.1:8080"
-	fmt.Println("URL:>", url)
+	url := os.Getenv("POD_LOGGER_URL")
 
 	jsonStr, err := json.Marshal(mStat)
 	if err != nil {
