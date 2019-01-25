@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/sdjournal"
+	"github.com/rhdedgar/pleg-watcher/container"
 )
 
 type PLEGEvent struct {
@@ -25,10 +26,6 @@ type PLEGBuffer struct {
 
 func quoteVar(s string, r string) string {
 	return strings.Replace(s, r, "\""+r+"\"", 1)
-}
-
-func ProcessContainer(inputStr string) {
-	fmt.Println(inputStr)
 }
 
 func CheckOutput(inputStr string) string {
@@ -92,7 +89,7 @@ func PLEGWatch() {
 		fmt.Println(scanner.Text())
 		event := CheckOutput(scanner.Text())
 		if event != "" {
-			go ProcessContainer(event)
+			go container.ProcessContainer(event)
 		}
 	}
 }

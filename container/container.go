@@ -13,6 +13,8 @@ import (
 func ProcessContainer(containerID string) {
 	var container models.Status
 
+	fmt.Println("inspecting: ", containerID)
+
 	// Using raw command output in lieu of a proper wrapper
 	cmd := exec.Command("/usr/bin/crictl", "inspect", containerID)
 
