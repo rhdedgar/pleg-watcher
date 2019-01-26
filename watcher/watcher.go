@@ -1,7 +1,6 @@
 package watcher
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/coreos/go-systemd/sdjournal"
 	"github.com/rhdedgar/pleg-watcher/container"
+	"github.com/rhdedgar/pleg-watcher/models"
 )
 
 type PLEGEvent struct {
@@ -28,50 +28,55 @@ func quoteVar(s string, r string) string {
 	return strings.Replace(s, r, "\""+r+"\"", 1)
 }
 
-func CheckOutput(inputStr string) string {
+func CheckOutput(line <-chan string) {
 	var plegEvent PLEGEvent
 
-	if strings.Contains(inputStr, "ContainerStarted") {
+	for {
+		select {
+		case inputStr := <-line:
+			fmt.Println(inputStr)
+			//fmt.Println(line)
 
-		// Gather only the unquoted json of the PLEG Event
-		out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
+			if strings.Contains(inputStr, "ContainerStarted") {
+				// Gather only the unquoted json of the PLEG Event
+				out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
 
-		// Quote the json so it can be Unmarshaled into a struct
-		for _, item := range []string{"ID", "Type", "Data"} {
-			out = quoteVar(out, item)
+				// Quote the json so it can be Unmarshaled into a struct
+				for _, item := range []string{"ID", "Type", "Data"} {
+					out = quoteVar(out, item)
+				}
+
+				if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
+					fmt.Println("error unmarshaling json: ", err)
+				}
+
+				fmt.Println("Data key:\n", plegEvent.Data)
+
+				container.ProcessContainer(plegEvent.Data)
+			}
+			fmt.Println("Not a creation event, skipping")
+			//return ""
 		}
-
-		if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
-			fmt.Println("error unmarshaling json: ", err)
-		}
-
-		fmt.Println("Data key:\n", plegEvent.Data)
-
-		return plegEvent.Data
 	}
-	fmt.Println("Not a creation event, skipping")
-	return ""
 }
 
-func PLEGWatch() {
-	var b bytes.Buffer
-
-	writer := bufio.NewWriter(&b)
-	reader := bufio.NewReader(&b)
+func PLEGWatch(out *models.LineInfo) {
 	path := os.Getenv("JOURNAL_PATH")
 
-	jcfg := sdjournal.JournalReaderConfig{
+	fmt.Println(path)
+
+	jrcfg := sdjournal.JournalReaderConfig{
 		NumFromTail: 10,
 		Path:        path,
-		Matches: []sdjournal.Match{
-			{
-				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
-				Value: "atomic-openshift-node",
-			},
-		},
+		//		Matches: []sdjournal.Match{
+		//			{
+		//				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
+		//				Value: "atomic-openshift-node",
+		//			},
+		//		},
 	}
 
-	jr, err := sdjournal.NewJournalReader(jcfg)
+	jr, err := sdjournal.NewJournalReader(jrcfg)
 	if err != nil {
 		log.Printf("[ERROR] journal: %v", err)
 		return
@@ -82,14 +87,8 @@ func PLEGWatch() {
 
 	until := make(chan time.Time)
 
-	jr.Follow(until, writer)
-	scanner := bufio.NewScanner(reader)
-
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-		event := CheckOutput(scanner.Text())
-		if event != "" {
-			go container.ProcessContainer(event)
-		}
+	if err := jr.Follow(until, out); err != nil {
+		log.Fatalf("Could not read from journal: %s", err)
 	}
+	fmt.Println("done following")
 }
