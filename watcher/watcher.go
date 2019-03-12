@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/sdjournal"
-	"github.com/rhdedgar/pleg-watcher/container"
+	"github.com/rhdedgar/pleg-watcher/containerinfo"
 	"github.com/rhdedgar/pleg-watcher/models"
 )
 
@@ -34,9 +34,6 @@ func CheckOutput(line <-chan string) {
 	for {
 		select {
 		case inputStr := <-line:
-			fmt.Println(inputStr)
-			//fmt.Println(line)
-
 			if strings.Contains(inputStr, "ContainerStarted") {
 				// Gather only the unquoted json of the PLEG Event
 				out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
@@ -47,15 +44,10 @@ func CheckOutput(line <-chan string) {
 				}
 
 				if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
-					fmt.Println("error unmarshaling json: ", err)
+					fmt.Println("error unmarshalling json: ", err)
 				}
-
-				fmt.Println("Data key:\n", plegEvent.Data)
-
-				container.ProcessContainer(plegEvent.Data)
+				containerinfo.ProcessContainer(plegEvent.Data)
 			}
-			fmt.Println("Not a creation event, skipping")
-			//return ""
 		}
 	}
 }
@@ -66,14 +58,14 @@ func PLEGWatch(out *models.LineInfo) {
 	fmt.Println(path)
 
 	jrcfg := sdjournal.JournalReaderConfig{
-		NumFromTail: 10,
-		Path:        path,
-		//		Matches: []sdjournal.Match{
-		//			{
-		//				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
-		//				Value: "atomic-openshift-node",
-		//			},
-		//		},
+		Since: time.Duration(time.Millisecond),
+		Path:  path,
+		Matches: []sdjournal.Match{
+			{
+				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
+				Value: "atomic-openshift-node",
+			},
+		},
 	}
 
 	jr, err := sdjournal.NewJournalReader(jrcfg)
@@ -90,5 +82,4 @@ func PLEGWatch(out *models.LineInfo) {
 	if err := jr.Follow(until, out); err != nil {
 		log.Fatalf("Could not read from journal: %s", err)
 	}
-	fmt.Println("done following")
 }
