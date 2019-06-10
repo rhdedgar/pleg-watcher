@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"syscall"
+	"strings"
 
+	"github.com/rhdedgar/pleg-watcher/chroot"
+	"github.com/rhdedgar/pleg-watcher/containerscan"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
 	"github.com/rhdedgar/pleg-watcher/sender"
@@ -19,26 +21,6 @@ var (
 	UseDocker = false
 )
 
-func chroot(chrPath string) (func() error, error) {
-	root, err := os.Open("/")
-	if err != nil {
-		return nil, err
-	}
-
-	if err := syscall.Chroot(chrPath); err != nil {
-		root.Close()
-		return nil, err
-	}
-
-	return func() error {
-		defer root.Close()
-		if err := root.Chdir(); err != nil {
-			return err
-		}
-		return syscall.Chroot(".")
-	}, nil
-}
-
 // ProcessContainer takes a containerID string and retrieves
 // info about it from crictl. Then sends the information to
 // pod-logger if found.
@@ -48,7 +30,7 @@ func ProcessContainer(containerID string) {
 
 	fmt.Println("inspecting: ", containerID)
 
-	exit, err := chroot("/host")
+	exit, err := chroot.Chroot("/host")
 	if err != nil {
 		panic(err)
 	}
@@ -73,15 +55,20 @@ func ProcessContainer(containerID string) {
 		if err := json.Unmarshal(jbyte, &dCon); err != nil {
 			fmt.Println("Error unmarshalling docker output json:", err)
 		}
-		if dCon[0].State.Status == "running" {
+		if strings.HasPrefix(dCon[0].State.Status.Label.IoKubernetesPodNamespace, "openshift-") {
+			return
+		} else if dCon[0].State.Status == "running" {
 			sender.SendDockerData(dCon)
 		}
 	} else {
 		if err := json.Unmarshal(jbyte, &cCon); err != nil {
 			fmt.Println("Error unmarshalling crictl output json:", err)
 		}
-		if cCon.Status.State == "CONTAINER_RUNNING" {
-			sender.SendCrioData(cCon)
+		if strings.HasPrefix(dCon[0].State.Status.Label.IoKubernetesPodNamespace, "openshift-") {
+			return
+		} else if cCon.Status.State == "CONTAINER_RUNNING" {
+			go sender.SendCrioData(cCon)
+			containerscan.PrepCrioScan(cCon)
 		}
 	}
 }
