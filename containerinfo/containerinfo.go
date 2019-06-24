@@ -1,14 +1,12 @@
 package containerinfo
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
-	"github.com/rhdedgar/pleg-watcher/chroot"
+	"github.com/rhdedgar/pleg-watcher/channels"
 	"github.com/rhdedgar/pleg-watcher/containerscan"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
@@ -16,7 +14,8 @@ import (
 )
 
 var (
-	path = "/usr/bin/crictl"
+	// Path is the path to the container runtime interface utility
+	Path = "/usr/bin/crictl"
 	// UseDocker if crictl not found
 	UseDocker = false
 )
@@ -30,32 +29,15 @@ func ProcessContainer(containerID string) {
 
 	fmt.Println("inspecting: ", containerID)
 
-	exit, err := chroot.Chroot("/host")
-	if err != nil {
-		panic(err)
-	}
-
-	// Using command output in lieu of a wrapper
-	cmd := exec.Command(path, "inspect", containerID)
-
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Error running command: ", err)
-	}
-
-	if err := exit(); err != nil {
-		panic(err)
-	}
-
-	jbyte := out.Bytes()
+	//models.ChrootChan <- containerID
+	channels.SetStringChan(models.ChrootChan, containerID)
+	jbyte := <-models.ChrootOut
 
 	if UseDocker {
 		if err := json.Unmarshal(jbyte, &dCon); err != nil {
 			fmt.Println("Error unmarshalling docker output json:", err)
 		}
-		if strings.HasPrefix(dCon[0].State.Status.Label.IoKubernetesPodNamespace, "openshift-") {
+		if strings.HasPrefix(dCon[0].Config.Labels.IoKubernetesPodNamespace, "openshift-") {
 			return
 		} else if dCon[0].State.Status == "running" {
 			sender.SendDockerData(dCon)
@@ -64,7 +46,7 @@ func ProcessContainer(containerID string) {
 		if err := json.Unmarshal(jbyte, &cCon); err != nil {
 			fmt.Println("Error unmarshalling crictl output json:", err)
 		}
-		if strings.HasPrefix(dCon[0].State.Status.Label.IoKubernetesPodNamespace, "openshift-") {
+		if strings.HasPrefix(cCon.Status.Labels.IoKubernetesPodNamespace, "openshift-") {
 			return
 		} else if cCon.Status.State == "CONTAINER_RUNNING" {
 			go sender.SendCrioData(cCon)
@@ -76,7 +58,7 @@ func ProcessContainer(containerID string) {
 func init() {
 	if _, err := os.Stat("/host/usr/bin/crictl"); os.IsNotExist(err) {
 		fmt.Println("Cannot find /host/usr/bin/crictl, using /host/usr/bin/docker")
-		path = "/usr/bin/docker"
+		Path = "/usr/bin/docker"
 		UseDocker = true
 	}
 }
