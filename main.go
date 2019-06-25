@@ -10,7 +10,7 @@ func main() {
 	var line models.LineInfo
 	line = make(chan string)
 
-	go chroot.SysCmd(&models.ChrootChan)
+	go chroot.SysCmd(models.ChrootChan)
 	go watcher.PLEGWatch(&line)
 	watcher.CheckOutput(line)
 }

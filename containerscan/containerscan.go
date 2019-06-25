@@ -109,9 +109,11 @@ func getCrioLayers(containerID string) []string {
 				crioLayers = append(crioLayers, j)
 			}
 		}
+		fmt.Println("returning layers")
 		return crioLayers
 
 	default:
+		fmt.Println("Nothing received from channel.")
 		return crioLayers
 	}
 }
@@ -119,6 +121,7 @@ func getCrioLayers(containerID string) []string {
 // PrepCrioScan gets a slice of container filesystem layers from getCrioLayers
 // and then initiates a scan for each of the returned layers.
 func PrepCrioScan(cCon models.Status) {
+	fmt.Println("In scan block")
 	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
 	cID := cCon.Status.ID
 

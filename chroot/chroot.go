@@ -13,7 +13,7 @@ import (
 
 // SysCmd waits for a container ID via channel input, and gathers information
 func SysCmd(cmdChan <-chan string) {
-	exit, err := chrootPath("/host")
+	_, err := chrootPath("/host")
 	if err != nil {
 		fmt.Println("Error getting chroot on host in ProcessContainer due to: ", err)
 	}
@@ -38,9 +38,9 @@ func SysCmd(cmdChan <-chan string) {
 	}
 
 	// If the select block is ever terminated, try to exit chroot
-	if err := exit(); err != nil {
-		fmt.Println("Exit status of inspect: ", err)
-	}
+	//if err := exit(); err != nil {
+	//	fmt.Println("Exit status of inspect: ", err)
+	//}
 }
 
 // Chroot provides chroot access to the mounted host filesystem

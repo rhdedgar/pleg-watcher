@@ -38,6 +38,7 @@ func ProcessContainer(containerID string) {
 			fmt.Println("Error unmarshalling docker output json:", err)
 		}
 		if strings.HasPrefix(dCon[0].Config.Labels.IoKubernetesPodNamespace, "openshift-") {
+			fmt.Println("Container is in openshift-* namespace, skipping")
 			return
 		} else if dCon[0].State.Status == "running" {
 			sender.SendDockerData(dCon)
@@ -47,6 +48,7 @@ func ProcessContainer(containerID string) {
 			fmt.Println("Error unmarshalling crictl output json:", err)
 		}
 		if strings.HasPrefix(cCon.Status.Labels.IoKubernetesPodNamespace, "openshift-") {
+			fmt.Println("Container is in openshift-* namespace, skipping")
 			return
 		} else if cCon.Status.State == "CONTAINER_RUNNING" {
 			go sender.SendCrioData(cCon)
