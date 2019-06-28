@@ -27,9 +27,8 @@ func ProcessContainer(containerID string) {
 	var dCon docker.DockerContainer
 	var cCon models.Status
 
-	fmt.Println("inspecting: ", containerID)
+	fmt.Println("ProcessContainer: ", containerID)
 
-	//models.ChrootChan <- containerID
 	channels.SetStringChan(models.ChrootChan, containerID)
 	jbyte := <-models.ChrootOut
 

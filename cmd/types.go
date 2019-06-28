@@ -7,7 +7,7 @@ import (
 )
 
 // DefaultClamSocketLocation is the default location of the clamd socket on the host
-const DefaultClamSocketLocation = "unix:///host/host/var/run/clamd.scan/clamd.sock"
+var DefaultClamSocketLocation = os.Getenv("CLAMSOCKET")
 
 // MultiStringVar is implementing flag.Value
 type MultiStringVar struct {
@@ -45,9 +45,9 @@ func NewDefaultContainerLayerScannerOptions() *ContainerLayerScannerOptions {
 	return &ContainerLayerScannerOptions{
 		ScanDir:        "",
 		ScanResultsDir: "",
-		ClamSocket:     "/var/run/clamd.scan/clamd.sock",
+		ClamSocket:     DefaultClamSocketLocation,
 		PostResultURL:  "",
-		OutFile:        "scanresults.json",
+		OutFile:        "",
 	}
 }
 

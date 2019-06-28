@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/rhdedgar/pleg-watcher/api"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
 )
@@ -14,6 +15,7 @@ import (
 var (
 	dockerURL = os.Getenv("DOCKER_LOG_URL")
 	crioURL   = os.Getenv("CRIO_LOG_URL")
+	clamURL   = os.Getenv("CLAM_LOG_URL")
 )
 
 // SendDockerData Marshals and POSTs json data to the pod-logger service.
@@ -32,6 +34,15 @@ func SendCrioData(mStat models.Status) {
 		fmt.Println("Error marshalling crio json to send to pod-logger: ", err)
 	}
 	sendLog(jsonStr, crioURL)
+}
+
+// SendClamData Marshals and POSTs json data to the pod-logger service.
+func SendClamData(sRes api.ScanResult) {
+	jsonStr, err := json.Marshal(sRes)
+	if err != nil {
+		fmt.Println("Error marshalling clam json to send to pod-logger: ", err)
+	}
+	sendLog(jsonStr, clamURL)
 }
 
 func sendLog(jsonStr []byte, url string) {

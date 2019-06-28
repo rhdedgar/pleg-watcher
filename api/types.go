@@ -13,13 +13,17 @@ const DefaultResultsAPIVersion = "v1alpha"
 type ScanResult struct {
 	// APIVersion represents an API version for this result
 	APIVersion string `json:"apiVersion"`
-	// ImageName is a full pull spec of the input image
-	ImageName string `json:"imageName"`
-	// ImageIUD is a SHA256 identifier of the scanned image
-	// Note that we don't set the imageID when container is the target of the scan.
-	ImageID string `json:"imageID,omitempty"`
 	// ContainerID contains the containerspec container to inspect.
 	ContainerID string `json:"containerID,omitempty"`
+	// ImageIUD is a SHA256 identifier of the scanned image
+	// Note that we don't set the imageID when a container is the target of the scan.
+	ImageID string `json:"imageID,omitempty"`
+	// ImageName is a full pull spec of the input image
+	ImageName string `json:"imageName"`
+	// NameSpace is the namespace in which the container was created
+	NameSpace string `json:"nameSpace"`
+	// PodName is the name of the pod in which the container was created
+	PodName string `json:"podName"`
 	// Results contains compacted results of various scans performed on the image.
 	// Empty results means no problems were found with the given image.
 	Results []Result `json:"results,omitempty"`

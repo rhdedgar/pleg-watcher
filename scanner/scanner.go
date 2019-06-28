@@ -12,16 +12,17 @@ import (
 	"github.com/rhdedgar/pleg-watcher/api"
 	"github.com/rhdedgar/pleg-watcher/clamav"
 	"github.com/rhdedgar/pleg-watcher/cmd"
+	"github.com/rhdedgar/pleg-watcher/sender"
 )
 
 // ContainerLayerScanner is the interface for all image containerLayerScanners.
-type ContainerLayerScanner interface {
-	// Inspect inspects and serves the image based on the ContainerLayerScannerOptions.
-	ClamScanner() error
-}
+//type ContainerLayerScanner interface {
+// Inspect inspects and serves the image based on the ContainerLayerScannerOptions.
+//	ClamScanner() error
+//}
 
-// scanOutputs is a struct to hold all the scan outputs that needs to be served
-type scanOutputs struct {
+// ScanOutputs is a struct to hold all the scan outputs that needs to be served
+type ScanOutputs struct {
 	ScanReport     []byte
 	HtmlScanReport []byte
 	ScanResults    api.ScanResult
@@ -30,16 +31,16 @@ type scanOutputs struct {
 // defaultContainerLayerScanner is the default implementation of ContainerLayerScanner.
 type defaultContainerLayerScanner struct {
 	opts        cmd.ContainerLayerScannerOptions
-	scanOutputs scanOutputs
+	ScanOutputs ScanOutputs
 }
 
 // NewDefaultContainerLayerScanner provides a new default scanner.
-func NewDefaultContainerLayerScanner(opts cmd.ContainerLayerScannerOptions) ContainerLayerScanner {
+func NewDefaultContainerLayerScanner(opts cmd.ContainerLayerScannerOptions) *defaultContainerLayerScanner {
 	containerLayerScanner := &defaultContainerLayerScanner{
 		opts: opts,
 	}
 
-	containerLayerScanner.scanOutputs.ScanResults = api.ScanResult{
+	containerLayerScanner.ScanOutputs.ScanResults = api.ScanResult{
 		APIVersion: api.DefaultResultsAPIVersion,
 		Results:    []api.Result{},
 	}
@@ -47,7 +48,7 @@ func NewDefaultContainerLayerScanner(opts cmd.ContainerLayerScannerOptions) Cont
 	return containerLayerScanner
 }
 
-// Inspect inspects and serves the image based on the ImageInspectorOptions.
+/* Inspect inspects and serves the image based on the ImageInspectorOptions.
 func (i *defaultContainerLayerScanner) ClamScanner() error {
 	err := i.acquireAndScan()
 	if err != nil {
@@ -56,9 +57,10 @@ func (i *defaultContainerLayerScanner) ClamScanner() error {
 
 	return err
 }
+*/
 
 // AcquireAndScan acquires and scans the image based on the ContainerLayerScannerOptions.
-func (i *defaultContainerLayerScanner) acquireAndScan() error {
+func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 	var (
 		scanner  api.Scanner
 		err      error
@@ -71,22 +73,24 @@ func (i *defaultContainerLayerScanner) acquireAndScan() error {
 	if err != nil {
 		return fmt.Errorf("failed to initialize clamav scanner: %v", err)
 	}
+
 	results, _, err := scanner.Scan(ctx, i.opts.ScanDir, filterFn)
 	if err != nil {
 		log.Printf("DEBUG: Unable to scan directory %q with ClamAV: %v", i.opts.ScanDir, err)
 		return err
 	}
-	i.scanOutputs.ScanResults.Results = append(i.scanOutputs.ScanResults.Results, results...)
 
-	if len(i.opts.PostResultURL) > 0 {
-		if err := i.postResults(i.scanOutputs.ScanResults); err != nil {
+	i.ScanOutputs.ScanResults.Results = append(i.ScanOutputs.ScanResults.Results, results...)
+	if len(i.opts.PostResultURL) > 0 { //&& (api.ScanResult{}) != i.ScanOutputs.ScanResults {
+		sender.SendClamData(i.ScanOutputs.ScanResults)
+		/*if err := i.postResults(i.ScanOutputs.ScanResults); err != nil {
 			log.Printf("Error posting results: %v", err)
 			return err
-		}
+		}*/
 	}
 
 	if len(i.opts.OutFile) > 0 {
-		if err := i.writeFile(i.scanOutputs.ScanResults); err != nil {
+		if err := i.writeFile(i.ScanOutputs.ScanResults); err != nil {
 			log.Printf("Error writing file: %v", err)
 			return err
 		}
@@ -111,7 +115,7 @@ func (i *defaultContainerLayerScanner) postResults(scanResults api.ScanResult) e
 	if err != nil {
 		return err
 	}
-	log.Printf("DEBUG: Success: %v", resp)
+	log.Printf("DEBUG: Success POSTing: %v", resp)
 	return nil
 }
 

@@ -12,7 +12,7 @@ import (
 )
 
 // SysCmd waits for a container ID via channel input, and gathers information
-func SysCmd(cmdChan <-chan string) {
+func SysCmd(cmdChan, runcChan <-chan string) {
 	_, err := chrootPath("/host")
 	if err != nil {
 		fmt.Println("Error getting chroot on host in ProcessContainer due to: ", err)
@@ -31,16 +31,26 @@ func SysCmd(cmdChan <-chan string) {
 				fmt.Println("Error running inspect command: ", cErr)
 			}
 
-			sStr := out.String()
-			fmt.Println("Command output was", sStr)
+			//sStr := out.String()
+			//fmt.Println("Command output was", sStr)
 			models.ChrootOut <- out.Bytes()
+
+		case scanContainer := <-runcChan:
+			//fmt.Println("running runc inspect command")
+			runCmd := exec.Command("/usr/bin/runc", "state", scanContainer)
+
+			var runOut bytes.Buffer
+			runCmd.Stdout = &runOut
+
+			if runcErr := runCmd.Run(); err != nil {
+				fmt.Println("Error running state command: ", runcErr)
+			}
+
+			//runcStr := runOut.String()
+			//fmt.Println("Command output was", runcStr)
+			models.RuncOut <- runOut.Bytes()
 		}
 	}
-
-	// If the select block is ever terminated, try to exit chroot
-	//if err := exit(); err != nil {
-	//	fmt.Println("Exit status of inspect: ", err)
-	//}
 }
 
 // Chroot provides chroot access to the mounted host filesystem

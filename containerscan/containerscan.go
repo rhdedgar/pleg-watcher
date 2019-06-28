@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rhdedgar/pleg-watcher/channels"
 	clscmd "github.com/rhdedgar/pleg-watcher/cmd"
@@ -62,66 +64,70 @@ func getCrioLayers(containerID string) []string {
 	var crioLayers []string
 	var runcState runcspec.RuncState
 
-	fmt.Println("inspecting: ", containerID)
+	fmt.Println("Getting cri-o layers: ", containerID)
 
-	go channels.SetStringChan(models.ChrootChan, containerID)
+	go channels.SetStringChan(models.RuncChan, containerID)
 
-	select {
-	case jbyte := <-models.ChrootOut:
+	jbyte := <-models.RuncOut
 
-		if err := json.Unmarshal(jbyte, &runcState); err != nil {
-			fmt.Println("Error unmarshalling crictl output json:", err)
-			return crioLayers
-		}
-
-		pid := runcState.Pid
-		//rootPath := runcState.RootFS
-		//dirPath := filepath.Dir(rootPath)
-		//IDPath := filepath.Base(rootPath)
-
-		mountPath := "/proc/" + string(pid) + "/mountinfo"
-		//mountOutput := ""
-
-		f, err := os.Open(mountPath)
-		if err != nil {
-			fmt.Println("error opening file:", mountPath, err)
-		}
-
-		defer f.Close()
-
-		scanner := bufio.NewScanner(f)
-		scanner.Scan()
-		scanOut := scanner.Text()
-
-		if err := scanner.Err(); err != nil {
-			fmt.Println("Error reading layer", err)
-		}
-
-		layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
-		layers = append(layers, custReg(scanOut, `upperdir=(.*),workdir`)...)
-
-		for _, l := range layers {
-			items := strings.Split(l, ":")
-			for _, i := range items {
-				j := custSplit(i, ",", 0)
-				j = custSplit(j, "=", 1)
-
-				crioLayers = append(crioLayers, j)
-			}
-		}
-		fmt.Println("returning layers")
-		return crioLayers
-
-	default:
-		fmt.Println("Nothing received from channel.")
+	//fmt.Println("Channel returned: ", string(jbyte))
+	if err := json.Unmarshal(jbyte, &runcState); err != nil {
+		fmt.Println("Error unmarshalling crictl output json:", err)
 		return crioLayers
 	}
+
+	pid := runcState.Pid
+	//rootPath := runcState.RootFS
+	//dirPath := filepath.Dir(rootPath)
+	//IDPath := filepath.Base(rootPath)
+
+	mountPath := "/proc/" + strconv.Itoa(pid) + "/mountinfo"
+	//mountOutput := ""
+
+	/*	cwDir, err := os.Getwd()
+		if err != nil {
+			fmt.Println("Error getting working dir: ", err)
+		}
+		fmt.Println("Current dir is: ", cwDir)
+	*/
+	f, err := os.Open(mountPath)
+	if err != nil {
+		fmt.Println("Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
+		time.Sleep(5 * time.Second)
+		f, err = os.Open(mountPath)
+	}
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	scanner.Scan()
+	scanOut := scanner.Text()
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading layer", err)
+		return crioLayers
+	}
+
+	layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
+	layers = append(layers, custReg(scanOut, `upperdir=(.*),workdir`)...)
+
+	for _, l := range layers {
+		items := strings.Split(l, ":")
+		for _, i := range items {
+			j := custSplit(i, ",", 0)
+			j = custSplit(j, "=", 1)
+
+			crioLayers = append(crioLayers, j)
+		}
+	}
+	//fmt.Println("returning layers")
+	return crioLayers
 }
 
 // PrepCrioScan gets a slice of container filesystem layers from getCrioLayers
 // and then initiates a scan for each of the returned layers.
 func PrepCrioScan(cCon models.Status) {
-	fmt.Println("In scan block")
+	//fmt.Println("In scan block")
 	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
 	cID := cCon.Status.ID
 
@@ -132,22 +138,23 @@ func PrepCrioScan(cCon models.Status) {
 		return
 	}
 
-	scannerOptions.ScanResultsDir = scanResultsDir //"./"
-	scannerOptions.PostResultURL = postResultURL   // "127.0.0.1"
-	scannerOptions.OutFile = outFile               // "clamav_scan_results.log"
-
-	fmt.Println("Scanning layers", cLayers)
+	scannerOptions.ScanResultsDir = scanResultsDir
+	scannerOptions.PostResultURL = postResultURL
+	scannerOptions.OutFile = outFile
 
 	for _, l := range cLayers {
 		scannerOptions.ScanDir = l
 
 		if err := scannerOptions.Validate(); err != nil {
-			fmt.Println("error validating scanner options", err)
+			fmt.Println("Error validating scanner options: ", err)
 		}
 
 		scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
-		if err := scanner.ClamScanner(); err != nil {
-			fmt.Println("error creating new scanner", err)
+		scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
+		scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
+
+		if err := scanner.AcquireAndScan(); err != nil {
+			fmt.Println("Error returned from scanner: ", err)
 		}
 	}
 }
