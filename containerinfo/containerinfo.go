@@ -32,27 +32,34 @@ func ProcessContainer(containerID string) {
 	channels.SetStringChan(models.ChrootChan, containerID)
 	jbyte := <-models.ChrootOut
 
-	if UseDocker {
-		if err := json.Unmarshal(jbyte, &dCon); err != nil {
-			fmt.Println("Error unmarshalling docker output json:", err)
-		}
-		if strings.HasPrefix(dCon[0].Config.Labels.IoKubernetesPodNamespace, "openshift-") {
-			fmt.Println("Container is in openshift-* namespace, skipping")
-			return
-		} else if dCon[0].State.Status == "running" {
-			sender.SendDockerData(dCon)
+	if len(jbyte) > 0 {
+		if UseDocker {
+			if err := json.Unmarshal(jbyte, &dCon); err != nil {
+				fmt.Println("Error unmarshalling docker output json:", err)
+				return
+			}
+			if strings.HasPrefix(dCon[0].Config.Labels.IoKubernetesPodNamespace, "openshift-") {
+				fmt.Println("Container is in openshift-* namespace, skipping")
+				return
+			} else if dCon[0].State.Status == "running" {
+				sender.SendDockerData(dCon)
+			}
+		} else {
+			if err := json.Unmarshal(jbyte, &cCon); err != nil {
+				fmt.Println("Error unmarshalling crictl output json:", err)
+				fmt.Println(string(jbyte))
+				return
+			}
+			if strings.HasPrefix(cCon.Status.Labels.IoKubernetesPodNamespace, "openshift-") {
+				fmt.Println("Container is in openshift-* namespace, skipping")
+				return
+			} else if cCon.Status.State == "CONTAINER_RUNNING" {
+				go sender.SendCrioData(cCon)
+				containerscan.PrepCrioScan(cCon)
+			}
 		}
 	} else {
-		if err := json.Unmarshal(jbyte, &cCon); err != nil {
-			fmt.Println("Error unmarshalling crictl output json:", err)
-		}
-		if strings.HasPrefix(cCon.Status.Labels.IoKubernetesPodNamespace, "openshift-") {
-			fmt.Println("Container is in openshift-* namespace, skipping")
-			return
-		} else if cCon.Status.State == "CONTAINER_RUNNING" {
-			go sender.SendCrioData(cCon)
-			containerscan.PrepCrioScan(cCon)
-		}
+		fmt.Println("Bytes returned empty")
 	}
 }
 

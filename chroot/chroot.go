@@ -31,12 +31,12 @@ func SysCmd(cmdChan, runcChan <-chan string) {
 				fmt.Println("Error running inspect command: ", cErr)
 			}
 
-			//sStr := out.String()
-			//fmt.Println("Command output was", sStr)
+			sStr := out.String()
+			fmt.Println("Command output was", sStr)
 			models.ChrootOut <- out.Bytes()
 
 		case scanContainer := <-runcChan:
-			//fmt.Println("running runc inspect command")
+			fmt.Println("running runc state command")
 			runCmd := exec.Command("/usr/bin/runc", "state", scanContainer)
 
 			var runOut bytes.Buffer
@@ -46,8 +46,8 @@ func SysCmd(cmdChan, runcChan <-chan string) {
 				fmt.Println("Error running state command: ", runcErr)
 			}
 
-			//runcStr := runOut.String()
-			//fmt.Println("Command output was", runcStr)
+			runcStr := runOut.String()
+			fmt.Println("Command output was", runcStr)
 			models.RuncOut <- runOut.Bytes()
 		}
 	}

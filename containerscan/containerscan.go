@@ -73,6 +73,7 @@ func getCrioLayers(containerID string) []string {
 	//fmt.Println("Channel returned: ", string(jbyte))
 	if err := json.Unmarshal(jbyte, &runcState); err != nil {
 		fmt.Println("Error unmarshalling crictl output json:", err)
+		fmt.Println(string(jbyte))
 		return crioLayers
 	}
 

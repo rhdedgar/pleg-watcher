@@ -23,6 +23,7 @@ func SendDockerData(dCon docker.DockerContainer) {
 	jsonStr, err := json.Marshal(dCon)
 	if err != nil {
 		fmt.Println("Error marshalling docker json to send to pod-logger: ", err)
+		return
 	}
 	sendLog(jsonStr, dockerURL)
 }
@@ -41,6 +42,7 @@ func SendClamData(sRes api.ScanResult) {
 	jsonStr, err := json.Marshal(sRes)
 	if err != nil {
 		fmt.Println("Error marshalling clam json to send to pod-logger: ", err)
+		return
 	}
 	sendLog(jsonStr, clamURL)
 }
@@ -53,6 +55,7 @@ func sendLog(jsonStr []byte, url string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error sending to pod-logger: ", err)
+		return
 	}
 	defer resp.Body.Close()
 

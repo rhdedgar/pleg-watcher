@@ -1,12 +1,9 @@
 package scanner
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 	"os"
 
 	"github.com/rhdedgar/pleg-watcher/api"
@@ -48,17 +45,6 @@ func NewDefaultContainerLayerScanner(opts cmd.ContainerLayerScannerOptions) *def
 	return containerLayerScanner
 }
 
-/* Inspect inspects and serves the image based on the ImageInspectorOptions.
-func (i *defaultContainerLayerScanner) ClamScanner() error {
-	err := i.acquireAndScan()
-	if err != nil {
-		return fmt.Errorf("failed to acquire and scan: %v", err.Error())
-	}
-
-	return err
-}
-*/
-
 // AcquireAndScan acquires and scans the image based on the ContainerLayerScannerOptions.
 func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 	var (
@@ -71,27 +57,26 @@ func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 
 	scanner, err = clamav.NewScanner(i.opts.ClamSocket)
 	if err != nil {
+		fmt.Println("Error initializing clam:")
 		return fmt.Errorf("failed to initialize clamav scanner: %v", err)
 	}
 
 	results, _, err := scanner.Scan(ctx, i.opts.ScanDir, filterFn)
 	if err != nil {
-		log.Printf("DEBUG: Unable to scan directory %q with ClamAV: %v", i.opts.ScanDir, err)
+		fmt.Printf("DEBUG: Unable to scan directory %q with ClamAV: %v", i.opts.ScanDir, err)
 		return err
 	}
 
 	i.ScanOutputs.ScanResults.Results = append(i.ScanOutputs.ScanResults.Results, results...)
-	if len(i.opts.PostResultURL) > 0 { //&& (api.ScanResult{}) != i.ScanOutputs.ScanResults {
+	if len(i.opts.PostResultURL) > 0 && len(i.ScanOutputs.ScanResults.Results) > 0 {
+		fmt.Println("Infected files found, sending: ", i.ScanOutputs.ScanResults.Results)
 		sender.SendClamData(i.ScanOutputs.ScanResults)
-		/*if err := i.postResults(i.ScanOutputs.ScanResults); err != nil {
-			log.Printf("Error posting results: %v", err)
-			return err
-		}*/
 	}
 
+	fmt.Println("The results slice: ", i.ScanOutputs.ScanResults.Results)
 	if len(i.opts.OutFile) > 0 {
 		if err := i.writeFile(i.ScanOutputs.ScanResults); err != nil {
-			log.Printf("Error writing file: %v", err)
+			fmt.Printf("Error writing file: %v", err)
 			return err
 		}
 	}
@@ -99,31 +84,11 @@ func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 	return nil
 }
 
-func (i *defaultContainerLayerScanner) postResults(scanResults api.ScanResult) error {
-	url := i.opts.PostResultURL
-	log.Printf("Posting results to %q ...", url)
-	resultJSON, err := json.Marshal(scanResults)
-	if err != nil {
-		return err
-	}
-	client := http.Client{}
-	req, err := http.NewRequest("POST", url, bytes.NewReader(resultJSON))
-	if err != nil {
-		return err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	log.Printf("DEBUG: Success POSTing: %v", resp)
-	return nil
-}
-
 func (i *defaultContainerLayerScanner) writeFile(scanResults api.ScanResult) error {
 	outFile := i.opts.OutFile
-	log.Printf("Writing results to %q ...", outFile)
+	fmt.Printf("Writing results to %q ...", outFile)
 
-	openFile, err := os.Create(outFile)
+	openFile, err := os.OpenFile(outFile, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
@@ -135,7 +100,7 @@ func (i *defaultContainerLayerScanner) writeFile(scanResults api.ScanResult) err
 		return err
 	}
 
-	fileWrite, err := openFile.WriteString(string(jOut))
+	fileWrite, err := openFile.WriteString(string(jOut) + "\n")
 	if err != nil {
 		return err
 	}

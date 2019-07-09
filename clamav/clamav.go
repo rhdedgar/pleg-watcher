@@ -3,7 +3,6 @@ package clamav
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -43,13 +42,15 @@ func (s *ClamScanner) Scan(ctx context.Context, path string, filter api.FilesFil
 	scanResults := []api.Result{}
 	// Useful for debugging
 	scanStarted := time.Now()
-	fmt.Println(scanResults)
+
 	defer func() {
-		log.Printf("clamav scan took %ds (%d problems found)", int64(time.Since(scanStarted).Seconds()), len(scanResults))
+		fmt.Printf("clamav scan took %ds (%d problems found)\n", int64(time.Since(scanStarted).Seconds()), len(scanResults))
 	}()
+
 	if err := s.clamd.ScanPath(ctx, path, clamav.FilterFiles(filter)); err != nil {
 		return nil, nil, err
 	}
+
 	s.clamd.WaitTillDone()
 	defer s.clamd.Close()
 
@@ -58,14 +59,14 @@ func (s *ClamScanner) Scan(ctx context.Context, path string, filter api.FilesFil
 	for _, r := range clamResults.Files {
 		r := api.Result{
 			Name:           ScannerName,
-			ScannerVersion: "0.99.2",
+			ScannerVersion: "0.101.2",
 			Timestamp:      scanStarted,
 			Reference:      fmt.Sprintf("file://%s", strings.TrimPrefix(r.Filename, path)),
 			Description:    r.Result,
 		}
 		scanResults = append(scanResults, r)
 	}
-	fmt.Println(scanResults)
+	fmt.Println("clamav results: ", scanResults)
 	return scanResults, nil, nil
 }
 
