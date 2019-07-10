@@ -47,7 +47,7 @@ func ProcessContainer(containerID string) {
 		} else {
 			if err := json.Unmarshal(jbyte, &cCon); err != nil {
 				fmt.Println("Error unmarshalling crictl output json:", err)
-				fmt.Println(string(jbyte))
+				fmt.Println("bytes look like: ", string(jbyte))
 				return
 			}
 			if strings.HasPrefix(cCon.Status.Labels.IoKubernetesPodNamespace, "openshift-") {

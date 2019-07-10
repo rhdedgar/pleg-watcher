@@ -46,8 +46,8 @@ func SysCmd(cmdChan, runcChan <-chan string) {
 				fmt.Println("Error running state command: ", runcErr)
 			}
 
-			runcStr := runOut.String()
-			fmt.Println("Command output was", runcStr)
+			//runcStr := runOut.String()
+			//fmt.Println("Command output was", runcStr)
 			models.RuncOut <- runOut.Bytes()
 		}
 	}

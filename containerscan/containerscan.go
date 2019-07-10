@@ -85,12 +85,6 @@ func getCrioLayers(containerID string) []string {
 	mountPath := "/proc/" + strconv.Itoa(pid) + "/mountinfo"
 	//mountOutput := ""
 
-	/*	cwDir, err := os.Getwd()
-		if err != nil {
-			fmt.Println("Error getting working dir: ", err)
-		}
-		fmt.Println("Current dir is: ", cwDir)
-	*/
 	f, err := os.Open(mountPath)
 	if err != nil {
 		fmt.Println("Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
@@ -100,11 +94,11 @@ func getCrioLayers(containerID string) []string {
 
 	defer f.Close()
 
-	scanner := bufio.NewScanner(f)
-	scanner.Scan()
-	scanOut := scanner.Text()
+	bufScan := bufio.NewScanner(f)
+	bufScan.Scan()
+	scanOut := bufScan.Text()
 
-	if err := scanner.Err(); err != nil {
+	if err := bufScan.Err(); err != nil {
 		fmt.Println("Error reading layer", err)
 		return crioLayers
 	}
@@ -128,7 +122,7 @@ func getCrioLayers(containerID string) []string {
 // PrepCrioScan gets a slice of container filesystem layers from getCrioLayers
 // and then initiates a scan for each of the returned layers.
 func PrepCrioScan(cCon models.Status) {
-	//fmt.Println("In scan block")
+	fmt.Println("In scan block")
 	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
 	cID := cCon.Status.ID
 
