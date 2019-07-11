@@ -59,6 +59,27 @@ func custReg(scanOut, regString string) []string {
 	return newLayers
 }
 
+func getRootFS(containerID string) (string, error) {
+	var runcState runcspec.RuncState
+
+	fmt.Println("Getting root container layer for: ", containerID)
+
+	go channels.SetStringChan(models.RuncChan, containerID)
+
+	jbyte := <-models.RuncOut
+
+	if err := json.Unmarshal(jbyte, &runcState); err != nil {
+		fmt.Println("Output returned from runc state: ", string(jbyte))
+		return "", fmt.Errorf("Error unmarshalling runc output json: %v", err)
+	}
+
+	if runcState.RootFS != "" {
+		return runcState.RootFS, nil
+	}
+
+	return "", fmt.Errorf("Output of runc state RootFS was empty")
+}
+
 func getCrioLayers(containerID string) []string {
 	var layers []string
 	var crioLayers []string
@@ -72,7 +93,7 @@ func getCrioLayers(containerID string) []string {
 
 	//fmt.Println("Channel returned: ", string(jbyte))
 	if err := json.Unmarshal(jbyte, &runcState); err != nil {
-		fmt.Println("Error unmarshalling crictl output json:", err)
+		fmt.Println("Error unmarshalling runc output json:", err)
 		fmt.Println(string(jbyte))
 		return crioLayers
 	}
@@ -126,30 +147,38 @@ func PrepCrioScan(cCon models.Status) {
 	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
 	cID := cCon.Status.ID
 
-	cLayers := getCrioLayers(cID)
+	//cLayers := getCrioLayers(cID)
 
-	if len(cLayers) == 0 {
-		fmt.Println("layers returned empty")
+	rootFS, err := getRootFS(cID)
+
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
+
+	//if len(cLayers) == 0 {
+	//	fmt.Println("layers returned empty")
+	//	return
+	//}
+	//fmt.Println(cLayers)
 
 	scannerOptions.ScanResultsDir = scanResultsDir
 	scannerOptions.PostResultURL = postResultURL
 	scannerOptions.OutFile = outFile
 
-	for _, l := range cLayers {
-		scannerOptions.ScanDir = l
+	//for _, l := range cLayers {
+	scannerOptions.ScanDir = rootFS
 
-		if err := scannerOptions.Validate(); err != nil {
-			fmt.Println("Error validating scanner options: ", err)
-		}
-
-		scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
-		scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
-		scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
-
-		if err := scanner.AcquireAndScan(); err != nil {
-			fmt.Println("Error returned from scanner: ", err)
-		}
+	if err := scannerOptions.Validate(); err != nil {
+		fmt.Println("Error validating scanner options: ", err)
 	}
+
+	scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
+	scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
+	scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
+
+	if err := scanner.AcquireAndScan(); err != nil {
+		fmt.Println("Error returned from scanner: ", err)
+	}
+	//}
 }

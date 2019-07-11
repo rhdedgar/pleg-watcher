@@ -15,7 +15,7 @@ import (
 func SysCmd(cmdChan, runcChan <-chan string) {
 	_, err := chrootPath("/host")
 	if err != nil {
-		fmt.Println("Error getting chroot on host in ProcessContainer due to: ", err)
+		fmt.Println("Error getting chroot on host due to: ", err)
 	}
 
 	for {
@@ -31,8 +31,8 @@ func SysCmd(cmdChan, runcChan <-chan string) {
 				fmt.Println("Error running inspect command: ", cErr)
 			}
 
-			sStr := out.String()
-			fmt.Println("Command output was", sStr)
+			//sStr := out.String()
+			//fmt.Println("Command output was", sStr)
 			models.ChrootOut <- out.Bytes()
 
 		case scanContainer := <-runcChan:
@@ -46,8 +46,8 @@ func SysCmd(cmdChan, runcChan <-chan string) {
 				fmt.Println("Error running state command: ", runcErr)
 			}
 
-			runcStr := runOut.String()
-			fmt.Println("runc state command output was", runcStr)
+			//runcStr := runOut.String()
+			//fmt.Println("runc state command output was", runcStr)
 			models.RuncOut <- runOut.Bytes()
 		}
 	}
