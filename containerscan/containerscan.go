@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -168,8 +169,7 @@ func PrepCrioScan(cCon models.Status) {
 	scannerOptions.PostResultURL = postResultURL
 	scannerOptions.OutFile = outFile
 
-	//for _, l := range cLayers {
-	scannerOptions.ScanDir = rootFS
+	scannerOptions.ScanDir = filepath.Dir(rootFS)
 
 	fmt.Println("Scanning: ", rootFS)
 
@@ -184,5 +184,4 @@ func PrepCrioScan(cCon models.Status) {
 	if err := scanner.AcquireAndScan(); err != nil {
 		fmt.Println("Error returned from scanner: ", err)
 	}
-	//}
 }

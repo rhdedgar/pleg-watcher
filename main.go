@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/rhdedgar/pleg-watcher/chroot"
 	"github.com/rhdedgar/pleg-watcher/models"
 	"github.com/rhdedgar/pleg-watcher/watcher"
@@ -8,6 +10,8 @@ import (
 
 func main() {
 	var line models.LineInfo
+
+	fmt.Println("pleg-watcher v0.1")
 	line = make(chan string)
 
 	go chroot.SysCmd(models.ChrootChan, models.RuncChan)
