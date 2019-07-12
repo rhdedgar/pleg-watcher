@@ -21,7 +21,7 @@ func SysCmd(cmdChan, runcChan <-chan string) {
 	for {
 		select {
 		case containerID := <-cmdChan:
-			fmt.Println("running this: ", containerinfo.Path+" inspect "+containerID)
+			//fmt.Println("running this: ", containerinfo.Path+" inspect "+containerID)
 			cmd := exec.Command(containerinfo.Path, "inspect", containerID)
 
 			var out bytes.Buffer

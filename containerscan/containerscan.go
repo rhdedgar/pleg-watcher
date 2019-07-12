@@ -143,14 +143,16 @@ func getCrioLayers(containerID string) []string {
 // PrepCrioScan gets a slice of container filesystem layers from getCrioLayers
 // and then initiates a scan for each of the returned layers.
 func PrepCrioScan(cCon models.Status) {
-	fmt.Println("In scan block")
+	fmt.Printf("In scan block for %v in %v",
+		cCon.Status.Labels.IoKubernetesPodName,
+		cCon.Status.Labels.IoKubernetesPodNamespace)
+
 	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
 	cID := cCon.Status.ID
 
 	//cLayers := getCrioLayers(cID)
 
 	rootFS, err := getRootFS(cID)
-
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -168,6 +170,8 @@ func PrepCrioScan(cCon models.Status) {
 
 	//for _, l := range cLayers {
 	scannerOptions.ScanDir = rootFS
+
+	fmt.Println("Scanning: ", rootFS)
 
 	if err := scannerOptions.Validate(); err != nil {
 		fmt.Println("Error validating scanner options: ", err)
