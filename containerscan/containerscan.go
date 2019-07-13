@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -169,19 +168,22 @@ func PrepCrioScan(cCon models.Status) {
 	scannerOptions.PostResultURL = postResultURL
 	scannerOptions.OutFile = outFile
 
-	scannerOptions.ScanDir = filepath.Dir(rootFS)
+	fmt.Printf("Scanning both %v and %v \n", rootFS, "/host"+rootFS)
 
-	fmt.Println("Scanning: ", rootFS)
+	for _, scandir := range []string{rootFS, "/host" + rootFS} {
 
-	if err := scannerOptions.Validate(); err != nil {
-		fmt.Println("Error validating scanner options: ", err)
-	}
+		scannerOptions.ScanDir = scandir //filepath.Dir(rootFS)
 
-	scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
-	scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
-	scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
+		if err := scannerOptions.Validate(); err != nil {
+			fmt.Println("Error validating scanner options: ", err)
+		}
 
-	if err := scanner.AcquireAndScan(); err != nil {
-		fmt.Println("Error returned from scanner: ", err)
+		scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
+		scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
+		scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
+
+		if err := scanner.AcquireAndScan(); err != nil {
+			fmt.Println("Error returned from scanner: ", err)
+		}
 	}
 }
