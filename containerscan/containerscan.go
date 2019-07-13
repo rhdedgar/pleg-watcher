@@ -64,6 +64,9 @@ func getRootFS(containerID string) (string, error) {
 
 	fmt.Println("Getting root container layer for: ", containerID)
 
+	// Avoid race condition with container layers not being written yet
+	time.Sleep(15 * time.Second)
+
 	go channels.SetStringChan(models.RuncChan, containerID)
 
 	jbyte := <-models.RuncOut
@@ -171,7 +174,6 @@ func PrepCrioScan(cCon models.Status) {
 	fmt.Printf("Scanning both %v and %v \n", rootFS, "/host"+rootFS)
 
 	for _, scandir := range []string{rootFS, "/host" + rootFS} {
-
 		scannerOptions.ScanDir = scandir //filepath.Dir(rootFS)
 
 		if err := scannerOptions.Validate(); err != nil {

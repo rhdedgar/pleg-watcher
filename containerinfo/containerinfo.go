@@ -54,8 +54,8 @@ func ProcessContainer(containerID string) {
 				fmt.Println("Container is in openshift-* namespace, skipping")
 				return
 			} else if cCon.Status.State == "CONTAINER_RUNNING" {
-				go sender.SendCrioData(cCon)
-				containerscan.PrepCrioScan(cCon)
+				go containerscan.PrepCrioScan(cCon)
+				sender.SendCrioData(cCon)
 			}
 		}
 	} else {
