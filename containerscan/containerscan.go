@@ -15,6 +15,7 @@ import (
 	"github.com/rhdedgar/pleg-watcher/models"
 	"github.com/rhdedgar/pleg-watcher/runcspec"
 	mainscan "github.com/rhdedgar/pleg-watcher/scanner"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -59,6 +60,26 @@ func custReg(scanOut, regString string) []string {
 	return newLayers
 }
 
+// mountOverlayFS takes a slice of strings containing OverlayFS layer paths
+// and mounts them to a read-only /mnt dir named after their container ID.
+func mountOverlayFS(layers []string, cID string) (string, error) {
+	scanDir := "/mnt/" + cID
+
+	err := os.Mkdir(scanDir, 0700)
+	if err != nil {
+		return "", fmt.Errorf("Error creating scanDir: %v", err)
+	}
+
+	overlayPath := strings.Join(layers, ":")
+
+	err = unix.Mount(overlayPath, scanDir, "overlay", unix.MS_NODEV|unix.MS_NOEXEC|unix.MS_RDONLY, "o")
+	if err != nil {
+		return "", fmt.Errorf("Error mounting scanDir: %v", err)
+	}
+
+	return scanDir, nil
+}
+
 func getRootFS(containerID string) (string, error) {
 	var runcState runcspec.RuncState
 
@@ -83,7 +104,9 @@ func getRootFS(containerID string) (string, error) {
 	return "", fmt.Errorf("Output of runc state RootFS was empty")
 }
 
-func getCrioLayers(containerID string) []string {
+// getCrioLayers takes a containerID string and queries crictl inspect and runc state
+// for overlayFS mount data found in /proc/PID/mountinfo.
+func getCrioLayers(containerID string) ([]string, error) {
 	var layers []string
 	var crioLayers []string
 	var runcState runcspec.RuncState
@@ -96,9 +119,8 @@ func getCrioLayers(containerID string) []string {
 
 	//fmt.Println("Channel returned: ", string(jbyte))
 	if err := json.Unmarshal(jbyte, &runcState); err != nil {
-		fmt.Println("Error unmarshalling runc output json:", err)
 		fmt.Println(string(jbyte))
-		return crioLayers
+		return crioLayers, fmt.Errorf("Error unmarshalling runc output json: %v", err)
 	}
 
 	pid := runcState.Pid
@@ -123,12 +145,11 @@ func getCrioLayers(containerID string) []string {
 	scanOut := bufScan.Text()
 
 	if err := bufScan.Err(); err != nil {
-		fmt.Println("Error reading layer", err)
-		return crioLayers
+		return crioLayers, fmt.Errorf("Error reading layer %v", err)
 	}
 
 	layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
-	layers = append(layers, custReg(scanOut, `upperdir=(.*),workdir`)...)
+	//layers = append(layers, custReg(scanOut, `upperdir=(.*),workdir`)...)
 
 	for _, l := range layers {
 		items := strings.Split(l, ":")
@@ -140,7 +161,7 @@ func getCrioLayers(containerID string) []string {
 		}
 	}
 	//fmt.Println("returning layers")
-	return crioLayers
+	return crioLayers, nil
 }
 
 // PrepCrioScan gets a slice of container filesystem layers from getCrioLayers
@@ -153,39 +174,50 @@ func PrepCrioScan(cCon models.Status) {
 	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
 	cID := cCon.Status.ID
 
-	//cLayers := getCrioLayers(cID)
+	cLayers, err := getCrioLayers(cID)
+	//rootFS, err := getRootFS(cID)
 
-	rootFS, err := getRootFS(cID)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	//if len(cLayers) == 0 {
-	//	fmt.Println("layers returned empty")
-	//	return
-	//}
-	//fmt.Println(cLayers)
+	if len(cLayers) == 0 {
+		fmt.Println("layers returned empty")
+		return
+	}
+	fmt.Println(cLayers)
+
+	scanDir, err := mountOverlayFS(cLayers, cID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	scannerOptions.ScanResultsDir = scanResultsDir
 	scannerOptions.PostResultURL = postResultURL
 	scannerOptions.OutFile = outFile
 
-	fmt.Printf("Scanning both %v and %v \n", rootFS, "/host"+rootFS)
+	//fmt.Printf("Scanning both %v and %v \n", rootFS, "/host"+rootFS)
 
-	for _, scandir := range []string{rootFS, "/host" + rootFS} {
-		scannerOptions.ScanDir = scandir //filepath.Dir(rootFS)
+	//for _, scandir := range []string{rootFS, "/host" + rootFS} {
 
-		if err := scannerOptions.Validate(); err != nil {
-			fmt.Println("Error validating scanner options: ", err)
-		}
+	scannerOptions.ScanDir = scanDir //filepath.Dir(rootFS)
 
-		scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
-		scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
-		scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
+	if err := scannerOptions.Validate(); err != nil {
+		fmt.Println("Error validating scanner options: ", err)
+	}
 
-		if err := scanner.AcquireAndScan(); err != nil {
-			fmt.Println("Error returned from scanner: ", err)
-		}
+	scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
+	scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
+	scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
+
+	if err := scanner.AcquireAndScan(); err != nil {
+		fmt.Println("Error returned from scanner: ", err)
+	}
+
+	err = unix.Unmount(scanDir, 0)
+	if err != nil {
+		fmt.Println("Error unmounting scanDir after scanning: ", err)
 	}
 }
