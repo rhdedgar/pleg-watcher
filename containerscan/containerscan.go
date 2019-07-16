@@ -72,7 +72,7 @@ func mountOverlayFS(layers []string, cID string) (string, error) {
 
 	overlayPath := strings.Join(layers, ":")
 
-	err = unix.Mount(overlayPath, scanDir, "overlay", unix.MS_NODEV|unix.MS_NOEXEC|unix.MS_RDONLY, "o")
+	err = unix.Mount("overlay", scanDir, "overlay", unix.MS_NODEV|unix.MS_NOEXEC|unix.MS_RDONLY, overlayPath)
 	if err != nil {
 		return "", fmt.Errorf("Error mounting scanDir: %v", err)
 	}
