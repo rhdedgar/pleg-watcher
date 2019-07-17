@@ -221,4 +221,9 @@ func PrepCrioScan(cCon models.Status) {
 	if err != nil {
 		fmt.Println("Error unmounting scanDir after scanning: ", err)
 	}
+
+	os.Remove(scanDir)
+	if err != nil {
+		fmt.Println("Error removing scanDir after unmounting: ", err)
+	}
 }
