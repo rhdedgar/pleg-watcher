@@ -34,6 +34,7 @@ func ProcessContainer(containerID string) {
 
 	if len(jbyte) > 0 {
 		if UseDocker {
+			fmt.Println("docker enabled, dCon is:", dCon)
 			if err := json.Unmarshal(jbyte, &dCon); err != nil {
 				fmt.Println("Error unmarshalling docker output json:", err)
 				return
@@ -42,6 +43,8 @@ func ProcessContainer(containerID string) {
 				fmt.Println("Container is in openshift-* namespace, skipping")
 				return
 			} else if dCon[0].State.Status == "running" {
+				fmt.Println("container state is running")
+				go containerscan.PrepDockerScan(dCon)
 				sender.SendDockerData(dCon)
 			}
 		} else {
