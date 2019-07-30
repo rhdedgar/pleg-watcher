@@ -7,7 +7,7 @@ import (
 )
 
 // DefaultClamSocketLocation is the default location of the clamd socket on the host
-var DefaultClamSocketLocation = os.Getenv("CLAMSOCKET")
+var DefaultClamSocketLocation = os.Getenv("CLAM_SOCKET")
 
 // MultiStringVar is implementing flag.Value
 type MultiStringVar struct {

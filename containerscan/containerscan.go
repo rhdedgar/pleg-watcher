@@ -20,9 +20,9 @@ import (
 )
 
 var (
-	scanResultsDir = os.Getenv("SCANRESULTSDIR")
-	postResultURL  = os.Getenv("POSTRESULTURL")
-	outFile        = os.Getenv("OUTFILE")
+	scanResultsDir = os.Getenv("SCAN_RESULTS_DIR")
+	postResultURL  = os.Getenv("POST_RESULT_URL")
+	outFile        = os.Getenv("OUT_FILE")
 )
 
 // custSplit takes 3 parameters and returns a string.
