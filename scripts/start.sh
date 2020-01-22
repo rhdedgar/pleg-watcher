@@ -18,4 +18,4 @@ echo '/usr/bin/pleg-watcher'
 echo
 echo 'Always listen for PLEG events from sdjournal.'
 echo '----------------'
-/usr/bin/watcher
+/usr/bin/pleg-watcher
