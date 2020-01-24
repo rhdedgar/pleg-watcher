@@ -12,13 +12,6 @@ if [ "$OO_PAUSE_ON_START" = "true" ] ; then
   done
 fi
 
-
-echo "Creating mount points for crio and docker sockets and dependencies."
-touch /var/run/docker.sock
-touch /var/run/crio/crio.sock
-touch /usr/bin/docker-current
-touch /etc/sysconfig/docker
-
 echo "Mounting crio and docker dependencies."
 mount --bind -o ro /host/var/run/docker.sock /var/run/docker.sock
 mount --bind -o ro /host/var/run/crio/crio.sock /var/run/crio/crio.sock

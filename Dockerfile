@@ -18,7 +18,17 @@ RUN yum install -y golang \
 ENV GOBIN=/bin \
     GOPATH=/go
 
-RUN mkdir -p /host/usr/bin /logs /var/log/journal && \
+# Creating mount points for crio and docker sockets and dependencies.
+RUN mkdir -p /host/usr/bin \
+             /logs \
+             /var/log/journal \
+             /var/run/crio \
+             /usr/bin \
+             /etc/sysconfig && \
+    touch /var/run/docker.sock \
+          /var/run/crio/crio.sock \
+          /usr/bin/docker-current \ 
+          /etc/sysconfig/docker && \
     go get github.com/rhdedgar/pleg-watcher && \
     cd /go/src/github.com/rhdedgar/pleg-watcher && \
     go install && \ 
