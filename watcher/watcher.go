@@ -1,10 +1,9 @@
 package watcher
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -14,20 +13,18 @@ import (
 	"github.com/rhdedgar/pleg-watcher/models"
 )
 
+// PLEGEvent represents relevant data from Kubernetes Pod Lifecycle Event Generator messages.
 type PLEGEvent struct {
 	ID   string `json:"ID"`
 	Type string `json:"Type"`
 	Data string `json:"Data"`
 }
 
-type PLEGBuffer struct {
-	bLine bytes.Buffer
-}
-
 func quoteVar(s string, r string) string {
 	return strings.Replace(s, r, "\""+r+"\"", 1)
 }
 
+// CheckOutput filters through new systemd lines as they're received from a string channel.
 func CheckOutput(line <-chan string) {
 	var plegEvent PLEGEvent
 
@@ -52,10 +49,17 @@ func CheckOutput(line <-chan string) {
 	}
 }
 
+// PLEGWatch initalizes a new JournalReader and starts following systemd output
 func PLEGWatch(out *models.LineInfo) {
 	path := os.Getenv("JOURNAL_PATH")
 
 	fmt.Println(path)
+
+	if _, err := isEmpty(path); err == nil {
+		fmt.Printf("[ERROR] path %v is empty\n", path)
+		fmt.Println("Waiting a few seconds to see if the path's volume gets mounted.")
+		time.Sleep(10 * time.Second)
+	}
 
 	jrcfg := sdjournal.JournalReaderConfig{
 		Since: time.Duration(time.Millisecond),
@@ -70,8 +74,7 @@ func PLEGWatch(out *models.LineInfo) {
 
 	jr, err := sdjournal.NewJournalReader(jrcfg)
 	if err != nil {
-		log.Printf("[ERROR] journal: %v", err)
-		return
+		fmt.Printf("[ERROR] journal: %v", err)
 	}
 	defer jr.Close()
 
@@ -80,6 +83,20 @@ func PLEGWatch(out *models.LineInfo) {
 	until := make(chan time.Time)
 
 	if err := jr.Follow(until, out); err != nil {
-		log.Fatalf("Could not read from journal: %s", err)
+		fmt.Printf("Could not read from journal: %s", err)
 	}
+}
+
+func isEmpty(name string) (bool, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err
 }
