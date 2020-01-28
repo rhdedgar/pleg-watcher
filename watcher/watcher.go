@@ -61,7 +61,21 @@ func PLEGWatch(out *models.LineInfo) {
 		time.Sleep(10 * time.Second)
 	}
 
-	jrcfg := sdjournal.JournalReaderConfig{
+	/*
+		jrcfg := sdjournal.JournalReaderConfig{
+			Since: time.Duration(time.Millisecond),
+			Path:  path,
+			Matches: []sdjournal.Match{
+				{
+					Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
+					Value: "atomic-openshift-node",
+				},
+			},
+		}
+	*/
+
+	//jr, err := sdjournal.NewJournalReader(jrcfg)
+	r, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
 		Since: time.Duration(time.Millisecond),
 		Path:  path,
 		Matches: []sdjournal.Match{
@@ -70,19 +84,23 @@ func PLEGWatch(out *models.LineInfo) {
 				Value: "atomic-openshift-node",
 			},
 		},
+	})
+
+	if err != nil {
+		fmt.Printf("Error opening journal: %v\n", err)
 	}
 
-	jr, err := sdjournal.NewJournalReader(jrcfg)
-	if err != nil {
-		fmt.Printf("[ERROR] journal: %v", err)
+	if r == nil {
+		fmt.Println("Error: got a nil reader.")
 	}
-	defer jr.Close()
+
+	defer r.Close()
 
 	fmt.Println("=== Watching journal ===")
 
 	until := make(chan time.Time)
 
-	if err := jr.Follow(until, out); err != nil {
+	if err := r.Follow(until, out); err != nil {
 		fmt.Printf("Could not read from journal: %s", err)
 	}
 }
