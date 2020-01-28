@@ -101,7 +101,7 @@ func PLEGWatch(out *models.LineInfo) {
 	until := make(chan time.Time)
 
 	if err := r.Follow(until, out); err != nil {
-		fmt.Printf("Could not read from journal: %s", err)
+		fmt.Printf("Could not read from journal: %s\n", err)
 	}
 }
 
