@@ -11,7 +11,7 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.9.1")
+	fmt.Println("pleg-watcher v0.9.2")
 	line = make(chan string)
 
 	go chroot.SysCmd(models.ChrootChan, models.RuncChan)
