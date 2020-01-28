@@ -32,7 +32,7 @@ RUN mkdir -p /host/usr/bin \
     /usr/bin/go get github.com/rhdedgar/pleg-watcher && \
     cd /go/src/github.com/rhdedgar/pleg-watcher && \
     /usr/bin/go install && \
-    cd / && \
+    cd && \
     rm -rf /go
 
 USER 0
