@@ -40,7 +40,9 @@ type LibHandle struct {
 // be successfully opened, an error is returned.
 func GetHandle(libs []string) (*LibHandle, error) {
 	for _, name := range libs {
+		fmt.Println("Name of lib we're trying to find", name)
 		libname := C.CString(name)
+		fmt.Println("Cstring name of lib we're trying to find", libname)
 		defer C.free(unsafe.Pointer(libname))
 		handle := C.dlopen(libname, C.RTLD_LAZY)
 		if handle != nil {
