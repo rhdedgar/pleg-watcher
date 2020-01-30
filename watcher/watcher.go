@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/go-systemd/sdjournal"
+	"github.com/coreos/go-systemd/v22/sdjournal"
 	"github.com/rhdedgar/pleg-watcher/containerinfo"
 	"github.com/rhdedgar/pleg-watcher/models"
 )
