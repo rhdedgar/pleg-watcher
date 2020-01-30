@@ -55,26 +55,6 @@ func PLEGWatch(out *models.LineInfo) {
 
 	fmt.Println(path)
 
-	if _, err := isEmpty(path); err == nil {
-		fmt.Printf("[ERROR] path %v is empty\n", path)
-		fmt.Println("Waiting a few seconds to see if the path's volume gets mounted.")
-		time.Sleep(10 * time.Second)
-	}
-
-	/*
-		jrcfg := sdjournal.JournalReaderConfig{
-			Since: time.Duration(time.Millisecond),
-			Path:  path,
-			Matches: []sdjournal.Match{
-				{
-					Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
-					Value: "atomic-openshift-node",
-				},
-			},
-		}
-	*/
-
-	//jr, err := sdjournal.NewJournalReader(jrcfg)
 	r, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
 		Since: time.Duration(time.Millisecond),
 		Path:  path,

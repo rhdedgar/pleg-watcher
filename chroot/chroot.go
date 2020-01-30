@@ -12,8 +12,9 @@ import (
 )
 
 // SysCmd waits for a container ID via channel input, and gathers information
+// about the container when it receives an ID.
 func SysCmd(cmdChan, runcChan <-chan string) {
-	_, err := chrootPath("/host")
+	_, err := chrootPath(os.Getenv("CHROOT_PATH"))
 	if err != nil {
 		fmt.Println("Error getting chroot on host due to: ", err)
 	}
