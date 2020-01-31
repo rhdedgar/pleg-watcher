@@ -31,7 +31,6 @@ func CheckOutput(line <-chan string) {
 	for {
 		select {
 		case inputStr := <-line:
-			fmt.Println("CheckOutput:", inputStr)
 			if strings.Contains(inputStr, "ContainerStarted") {
 				// Gather only the unquoted json of the PLEG Event
 				out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
@@ -59,12 +58,12 @@ func PLEGWatch(out *models.LineInfo) {
 	r, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
 		Since: time.Duration(time.Millisecond),
 		Path:  path,
-		/*Matches: []sdjournal.Match{
+		Matches: []sdjournal.Match{
 			{
 				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
 				Value: "atomic-openshift-node",
 			},
-		},*/
+		},
 	})
 
 	if err != nil {

@@ -14,7 +14,9 @@ func main() {
 	fmt.Println("pleg-watcher v0.0.6")
 	line = make(chan string)
 
+	// This gets set up first so that chroot doesn't interfere.
 	watcher.PLEGWatch(&line)
+
 	go chroot.SysCmd(models.ChrootChan, models.RuncChan)
 	watcher.CheckOutput(line)
 }
