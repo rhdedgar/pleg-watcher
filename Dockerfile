@@ -31,7 +31,7 @@ RUN mkdir -p /host/usr/bin \
           /etc/sysconfig/docker && \
     /usr/bin/go get github.com/rhdedgar/pleg-watcher && \
     cd /go/src/github.com/rhdedgar/pleg-watcher && \
-    /usr/bin/go install && \
+    /usr/bin/go install -mod vendor && \
     cd && \
     rm -rf /go
 
