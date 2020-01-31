@@ -11,10 +11,10 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.0.5")
+	fmt.Println("pleg-watcher v0.0.6")
 	line = make(chan string)
 
+	watcher.PLEGWatch(&line)
 	go chroot.SysCmd(models.ChrootChan, models.RuncChan)
-	go watcher.PLEGWatch(&line)
 	watcher.CheckOutput(line)
 }
