@@ -26,7 +26,7 @@ import (
 	"unsafe"
 )
 
-//var ErrSoNotFound = errors.New("unable to open a handle to the library")
+var ErrSoNotFound = errors.New("unable to open a handle to the library")
 
 // LibHandle represents an open handle to a library (.so)
 type LibHandle struct {
@@ -39,11 +39,8 @@ type LibHandle struct {
 // opened. Callers are responsible for closing the handler. If no library can
 // be successfully opened, an error is returned.
 func GetHandle(libs []string) (*LibHandle, error) {
-	newErr := "Default error"
 	for _, name := range libs {
-		fmt.Println("Name of lib we're trying to find", name)
 		libname := C.CString(name)
-		fmt.Println("Cstring name of lib we're trying to find", libname)
 		defer C.free(unsafe.Pointer(libname))
 		handle := C.dlopen(libname, C.RTLD_LAZY)
 		if handle != nil {
@@ -53,9 +50,7 @@ func GetHandle(libs []string) (*LibHandle, error) {
 			}
 			return h, nil
 		}
-		newErr = fmt.Sprintf("Can't open handle to library %v because of an error", name)
 	}
-	ErrSoNotFound := errors.New(newErr)
 	return nil, ErrSoNotFound
 }
 
