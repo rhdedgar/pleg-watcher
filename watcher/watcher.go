@@ -31,6 +31,7 @@ func CheckOutput(line <-chan string) {
 	for {
 		select {
 		case inputStr := <-line:
+			fmt.Println("inputStr", inputStr)
 			if strings.Contains(inputStr, "ContainerStarted") {
 				fmt.Println("found container started event", inputStr)
 				// Gather only the unquoted json of the PLEG Event.
@@ -61,7 +62,7 @@ func PLEGWatch(out *models.LineInfo) {
 		Path:  path,
 		Matches: []sdjournal.Match{
 			{
-				Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT,
+				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
 				Value: "kubelet",
 			},
 		},
