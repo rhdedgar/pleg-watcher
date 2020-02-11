@@ -32,6 +32,7 @@ func CheckOutput(line <-chan string) {
 		select {
 		case inputStr := <-line:
 			if strings.Contains(inputStr, "ContainerStarted") {
+				fmt.Println("found container started event", inputStr)
 				// Gather only the unquoted json of the PLEG Event.
 				out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
 
@@ -41,7 +42,7 @@ func CheckOutput(line <-chan string) {
 				}
 
 				if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
-					fmt.Println("error unmarshalling json: ", err)
+					fmt.Println("Error unmarshalling plegEvent json: ", err)
 				}
 				containerinfo.ProcessContainer(plegEvent.Data)
 			}
@@ -60,7 +61,7 @@ func PLEGWatch(out *models.LineInfo) {
 		Path:  path,
 		Matches: []sdjournal.Match{
 			{
-				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
+				Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT,
 				Value: "kubelet",
 			},
 		},
