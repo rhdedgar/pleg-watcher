@@ -63,7 +63,7 @@ func PLEGWatch(out *models.LineInfo) {
 		Matches: []sdjournal.Match{
 			{
 				Field: sdjournal.SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER,
-				Value: "kubelet",
+				Value: "kubelet.go",
 			},
 		},
 	})
