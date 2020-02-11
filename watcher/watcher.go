@@ -60,12 +60,12 @@ func PLEGWatch(out *models.LineInfo) {
 	r, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
 		Since: time.Duration(time.Millisecond),
 		Path:  path,
-		Matches: []sdjournal.Match{
+		/*Matches: []sdjournal.Match{
 			{
 				Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT,
 				Value: "kubelet.go",
 			},
-		},
+		},*/
 	})
 
 	if err != nil {
