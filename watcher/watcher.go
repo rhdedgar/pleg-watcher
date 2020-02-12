@@ -55,7 +55,7 @@ func CheckOutput(line <-chan string) {
 func PLEGWatch(out *models.LineInfo) {
 	path := os.Getenv("JOURNAL_PATH")
 
-	fmt.Println(path)
+	fmt.Println("Journal path:", path)
 
 	r, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
 		Since: time.Duration(time.Millisecond),
