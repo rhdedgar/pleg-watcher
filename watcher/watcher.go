@@ -28,6 +28,7 @@ func quoteVar(s string, r string) string {
 func CheckOutput(line <-chan string) {
 	var plegEvent PLEGEvent
 
+	fmt.Println("starting CheckOutput")
 	for {
 		select {
 		case inputStr := <-line:
@@ -57,17 +58,18 @@ func PLEGWatch(out *models.LineInfo) {
 
 	fmt.Println("Journal path:", path)
 
-	r, err := sdjournal.NewJournalReader(sdjournal.JournalReaderConfig{
-		Since: time.Duration(time.Millisecond),
-		Path:  path,
+	jcfg := sdjournal.JournalReaderConfig{
+		NumFromTail: uint64(1),
+		Path:        path,
 		/*Matches: []sdjournal.Match{
 			{
 				Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT,
 				Value: "kubelet.go",
 			},
 		},*/
-	})
+	}
 
+	r, err := sdjournal.NewJournalReader(jcfg)
 	if err != nil {
 		fmt.Printf("Error opening journal: %v\n", err)
 	}
@@ -85,7 +87,6 @@ func PLEGWatch(out *models.LineInfo) {
 	if err := r.Follow(until, out); err != nil {
 		fmt.Printf("Could not read from journal: %s\n", err)
 	}
-
 }
 
 func isEmpty(name string) (bool, error) {
