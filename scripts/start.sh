@@ -12,12 +12,6 @@ if [ "$OO_PAUSE_ON_START" = "true" ] ; then
   done
 fi
 
-echo "Mounting crio and docker dependencies."
-mount --bind -o ro /host/var/run/docker.sock /var/run/docker.sock || true
-mount --bind -o ro /host/var/run/crio/crio.sock /var/run/crio/crio.sock || true
-mount --bind -o ro /host/usr/bin/docker-current /usr/bin/docker-current || true
-mount --bind -o ro /host/etc/sysconfig/docker /etc/sysconfig/docker || true
-
 echo This container hosts the following applications:
 echo
 echo '/usr/bin/pleg-watcher'
