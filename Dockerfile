@@ -8,6 +8,8 @@ RUN test "$OO_PAUSE_ON_BUILD" = "true" && while sleep 10; do true; done || :
 
 ADD scripts/ /usr/local/bin/
 
+ENV TEMPTEST=true
+
 RUN dnf install -y golang \
                    gcc \
                    git \
@@ -31,7 +33,7 @@ RUN mkdir -p /host/usr/bin \
           /etc/sysconfig/docker && \
     /usr/bin/go get github.com/rhdedgar/pleg-watcher && \
     cd /go/src/github.com/rhdedgar/pleg-watcher && \
-    /usr/bin/go install -mod vendor && \
+    /usr/bin/go install && \
     cd && \
     rm -rf /go
 
