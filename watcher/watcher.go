@@ -60,7 +60,7 @@ func PLEGWatch(out *models.LineInfo) {
 
 	jcfg := sdjournal.JournalReaderConfig{
 		NumFromTail: uint64(1),
-		//Path:        path,
+		Path:        path,
 		/*Matches: []sdjournal.Match{
 			{
 				Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT,
