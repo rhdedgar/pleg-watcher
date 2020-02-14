@@ -61,12 +61,12 @@ func PLEGWatch(out *models.LineInfo) {
 	jcfg := sdjournal.JournalReaderConfig{
 		NumFromTail: uint64(1),
 		Path:        path,
-		/*Matches: []sdjournal.Match{
+		Matches: []sdjournal.Match{
 			{
 				Field: sdjournal.SD_JOURNAL_FIELD_SYSTEMD_UNIT,
-				Value: "kubelet.go",
+				Value: "kubelet",
 			},
-		},*/
+		},
 	}
 
 	r, err := sdjournal.NewJournalReader(jcfg)
