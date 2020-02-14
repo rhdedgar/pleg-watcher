@@ -12,13 +12,17 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.0.18, v0.0.17 was successful. testing SYSTEMD_UNIT kubelet filtering now")
+	fmt.Println("pleg-watcher v0.0.19, v0.0.17 was successful. testing SYSLOG_IDENTIFIER kubelet filtering now")
 	line = make(chan string)
 
 	// This gets set up first so that chroot doesn't interfere with libraries loading.
+	// It runs in a separate goroutine as it provides the actual watcher functionality.
 	go watcher.PLEGWatch(&line)
 	time.Sleep(5 * time.Second)
 
+	// Another goroutine to wait for container IDs, gather info about the container, and return it.
 	go chroot.SysCmd(models.ChrootChan, models.RuncChan)
+
+	// Continuously filter out irrelevant kubelet output.
 	watcher.CheckOutput(line)
 }
