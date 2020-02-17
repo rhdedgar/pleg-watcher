@@ -12,7 +12,7 @@ if [ "$OO_PAUSE_ON_START" = "true" ] ; then
   done
 fi
 
-mv /clam/clamd.sock /host/tmp/clamd.sock
+mount -o bind /clam/clamd.sock /host/tmp/clamd.sock
 
 echo This container hosts the following applications:
 echo
