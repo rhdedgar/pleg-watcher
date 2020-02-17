@@ -28,11 +28,10 @@ func quoteVar(s string, r string) string {
 func CheckOutput(line <-chan string) {
 	var plegEvent PLEGEvent
 
-	fmt.Println("starting CheckOutput")
 	for {
 		select {
 		case inputStr := <-line:
-			fmt.Println("CheckOutput inputStr", inputStr)
+			//fmt.Println("CheckOutput inputStr", inputStr)
 			if strings.Contains(inputStr, "ContainerStarted") {
 				fmt.Println("found container started event", inputStr)
 				// Gather only the unquoted json of the PLEG Event.
