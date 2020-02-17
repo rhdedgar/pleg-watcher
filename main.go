@@ -12,7 +12,7 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.0.22, v0.0.17 was successful. testing SD_JOURNAL_FIELD_SYSTEMD_UNIT kubelet.go filtering now")
+	fmt.Println("pleg-watcher v0.0.23, v0.0.17 was successful. testing SD_JOURNAL_FIELD_SYSLOG_IDENTIFIER hyperkube filtering now")
 	line = make(chan string)
 
 	// This gets set up first so that chroot doesn't interfere with libraries loading.
