@@ -12,7 +12,7 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.0.24, v0.0.23 was successful.")
+	fmt.Println("pleg-watcher v0.0.25, v0.0.23 was successful.")
 	line = make(chan string)
 
 	// This gets set up first so that chroot doesn't interfere with libraries loading.
