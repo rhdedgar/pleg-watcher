@@ -169,7 +169,7 @@ func getCrioLayers(containerID string) ([]string, error) {
 // PrepCrioScan gets a slice of container filesystem layers from getCrioLayers
 // and then initiates a scan for each of the returned layers.
 func PrepCrioScan(cCon models.Status) {
-	fmt.Printf("In scan block for %v in %v",
+	fmt.Printf("In scan block for %v in %v\n",
 		cCon.Status.Labels.IoKubernetesPodName,
 		cCon.Status.Labels.IoKubernetesPodNamespace)
 
@@ -267,7 +267,7 @@ func getDockerLayers(containerID string, procID int) ([]string, error) {
 // PrepDockerScan gets a slice of container filesystem layers from getDockerLayers
 // and then initiates a scan for each of the returned layers.
 func PrepDockerScan(dCon docker.DockerContainer) {
-	fmt.Printf("In scan block for %v in %v",
+	fmt.Printf("In scan block for %v in %v\n",
 		dCon[0].Config.Labels.IoKubernetesPodName,
 		dCon[0].Config.Labels.IoKubernetesPodNamespace)
 

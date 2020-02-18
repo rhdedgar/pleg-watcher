@@ -31,9 +31,8 @@ func CheckOutput(line <-chan string) {
 	for {
 		select {
 		case inputStr := <-line:
-			//fmt.Println("CheckOutput inputStr", inputStr)
 			if strings.Contains(inputStr, "ContainerStarted") {
-				fmt.Println("found container started event", inputStr)
+				fmt.Println("Found container started event", inputStr)
 				// Gather only the unquoted json of the PLEG Event.
 				out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
 
