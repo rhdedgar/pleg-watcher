@@ -15,9 +15,18 @@ fi
 n=0
 until [ $n -ge 5 ]
 do
-   mount -o bind /clam/clamd.sock /host/tmp/clamd.sock && break
+   mount -o bind /clam/clamd.sock /host/tmp/clamd.sock
+
+   e=$?
+   if [[ $e == 0 ]] ; then
+     break
+   elif [ n == 5 ] ; then
+     echo "Failed to mount clam socket, scans will be unavailable."
+   fi
+
    n=$[$n+1]
-   sleep 20
+   t=$[$n*30]
+   sleep t
 done
 
 echo This container hosts the following applications:
