@@ -19,7 +19,7 @@ do
      mount -o bind /clam/clamd.sock /host/tmp/clamd.sock || true
      n=$[$n+1]
      t=$[$n*30]
-     sleep t
+     sleep $t
    fi
 done
 
