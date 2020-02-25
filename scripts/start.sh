@@ -14,19 +14,14 @@ fi
 
 touch /host/tmp/clamd.sock
 
-n=0
-until [ $n -ge 5 ]
-do 
-   if [ ! -S /host/tmp/clamd.sock ]; then
-     n=$[$n+1]
-     t=$[$n*30]
-     sleep $t
-     mount -o bind /clam/clamd.sock /host/tmp/clamd.sock
-   fi
-done
-
 if [ ! -S /host/tmp/clamd.sock ]; then
-  echo "Failed to mount clam socket, scans will be unavailable."
+  n=0
+  until mount -o bind /clam/clamd.sock /host/tmp/clamd.sock
+  do
+    n=$($n+30)
+    echo "Failed to mount clam socket, trying again in $n seconds."
+    sleep $n
+  done
 fi
 
 echo This container hosts the following applications:
