@@ -16,7 +16,8 @@ n=0
 until [ $n -ge 5 ]
 do 
    if [ ! -S /host/tmp/clamd.sock ]; then
-     mount -o bind /clam/clamd.sock /host/tmp/clamd.sock || true
+     echo "Trying / retrying mount operation"
+     mount -o bind /clam/clamd.sock /host/tmp/ || true
      n=$[$n+1]
      t=$[$n*30]
      sleep $t

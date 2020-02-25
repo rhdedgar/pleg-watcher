@@ -12,7 +12,7 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.0.30, adding bash logic for socket mounting.")
+	fmt.Println("pleg-watcher v0.0.31, debugging bash logic for socket mounting.")
 	line = make(chan string)
 
 	// This gets set up first so that chroot doesn't interfere with libraries loading.
