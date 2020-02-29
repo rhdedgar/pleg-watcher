@@ -12,6 +12,7 @@ import (
 
 	"github.com/rhdedgar/pleg-watcher/channels"
 	clscmd "github.com/rhdedgar/pleg-watcher/cmd"
+	"github.com/rhdedgar/pleg-watcher/dial"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
 	"github.com/rhdedgar/pleg-watcher/runcspec"
@@ -115,9 +116,10 @@ func getCrioLayers(containerID string) ([]string, error) {
 
 	fmt.Println("Getting cri-o layers: ", containerID)
 
-	go channels.SetStringChan(models.RuncChan, containerID)
+	//go channels.SetStringChan(models.RuncChan, containerID)
+	//jbyte := <-models.RuncOut
 
-	jbyte := <-models.RuncOut
+	jbyte := dial.InfoSrv(containerID, "GetRuncInfo")
 
 	//fmt.Println("Channel returned: ", string(jbyte))
 	if err := json.Unmarshal(jbyte, &runcState); err != nil {

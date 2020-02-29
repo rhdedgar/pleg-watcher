@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rhdedgar/pleg-watcher/channels"
 	"github.com/rhdedgar/pleg-watcher/containerscan"
+	"github.com/rhdedgar/pleg-watcher/dial"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
 	"github.com/rhdedgar/pleg-watcher/sender"
@@ -29,8 +29,10 @@ func ProcessContainer(containerID string) {
 
 	fmt.Println("ProcessContainer: ", containerID)
 
-	channels.SetStringChan(models.ChrootChan, containerID)
-	jbyte := <-models.ChrootOut
+	//channels.SetStringChan(models.ChrootChan, containerID)
+	//jbyte := <-models.ChrootOut
+
+	jbyte := dial.InfoSrv(containerID, "GetContainerInfo")
 
 	if len(jbyte) > 0 {
 		if UseDocker {
