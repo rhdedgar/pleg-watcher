@@ -14,12 +14,12 @@ fi
 
 touch /host/tmp/clamd.sock
 
-if [ ! -S /host/tmp/clamd.sock ]; then
-  n=0
-  until mount -o bind /clam/clamd.sock /host/tmp/clamd.sock
+# Wait for the clam socket to become available before launching.
+if [ ! -S /clam/clamd.sock ]; then
+  n=30
+  until [ -S /clam/clamd.sock ]
   do
-    n=$($n+30)
-    echo "Failed to mount clam socket, trying again in $n seconds."
+    echo "Failed to find clam socket, trying again in $n seconds."
     sleep $n
   done
 fi

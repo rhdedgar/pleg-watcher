@@ -29,7 +29,5 @@ func InfoSrv(containerID, functionName string) []byte {
 		fmt.Println("Error calling server function", err)
 	}
 
-	fmt.Printf("InfoSrv got '%v'\n", reply)
-
 	return reply
 }
