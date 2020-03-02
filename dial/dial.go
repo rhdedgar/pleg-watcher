@@ -8,7 +8,7 @@ import (
 
 var (
 	// sockPath is the path to the Unix Domain Socket that listens for containerIDs and returns container info.
-	sockPath = os.Getenv("INFO_SOCK_PATH")
+	sockPath = os.Getenv("INFO_SOCKET")
 )
 
 // InfoSrv passes information about a container (arg1)
