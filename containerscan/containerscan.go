@@ -161,7 +161,7 @@ func getCrioLayers(containerID string) ([]string, error) {
 	//dirPath := filepath.Dir(rootPath)
 	//IDPath := filepath.Base(rootPath)
 
-	mountPath := "/proc/" + strconv.Itoa(pid) + "/mountinfo"
+	mountPath := "/host/proc/" + strconv.Itoa(pid) + "/mountinfo"
 	//mountOutput := ""
 
 	scanOut, err := getLayerInfo(mountPath)
@@ -250,7 +250,7 @@ func getDockerLayers(containerID string, procID int) ([]string, error) {
 
 	fmt.Println("Getting docker layers: ", containerID)
 
-	mountPath := "/proc/" + strconv.Itoa(procID) + "/mountinfo"
+	mountPath := "/host/proc/" + strconv.Itoa(procID) + "/mountinfo"
 
 	fmt.Println("Going to open:", mountPath)
 
