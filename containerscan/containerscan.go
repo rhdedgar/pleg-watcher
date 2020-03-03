@@ -107,6 +107,35 @@ func getRootFS(containerID string) (string, error) {
 	return "", fmt.Errorf("Output of runc state RootFS was empty")
 }
 
+func getLayerInfo(mountPath string) (string, error) {
+	var scanOut string
+
+	for i := 0; i <= 5; i++ {
+		f, err := os.Open(mountPath)
+		if err != nil {
+			if i >= 5 {
+				return "", fmt.Errorf("getLayerInfo: Error returning layers")
+			}
+			fmt.Println("getCrioLayers: Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
+			time.Sleep(5 * time.Second)
+			continue
+		} else {
+			defer f.Close()
+
+			bufScan := bufio.NewScanner(f)
+			bufScan.Scan()
+			scanOut = bufScan.Text()
+
+			if err := bufScan.Err(); err != nil {
+				return "", fmt.Errorf("Error reading layer %v", err)
+			}
+			break
+		}
+	}
+
+	return scanOut, nil
+}
+
 // getCrioLayers takes a containerID string and queries crictl inspect and runc state
 // for overlayFS mount data found in /proc/PID/mountinfo.
 func getCrioLayers(containerID string) ([]string, error) {
@@ -135,21 +164,9 @@ func getCrioLayers(containerID string) ([]string, error) {
 	mountPath := "/proc/" + strconv.Itoa(pid) + "/mountinfo"
 	//mountOutput := ""
 
-	f, err := os.Open(mountPath)
+	scanOut, err := getLayerInfo(mountPath)
 	if err != nil {
-		fmt.Println("getCrioLayers: Error opening file, waiting 10 seconds in case it just hasn't been created yet: ", mountPath, err)
-		time.Sleep(10 * time.Second)
-		f, err = os.Open(mountPath)
-	}
-
-	defer f.Close()
-
-	bufScan := bufio.NewScanner(f)
-	bufScan.Scan()
-	scanOut := bufScan.Text()
-
-	if err := bufScan.Err(); err != nil {
-		return crioLayers, fmt.Errorf("Error reading layer %v", err)
+		fmt.Println(err)
 	}
 
 	layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
