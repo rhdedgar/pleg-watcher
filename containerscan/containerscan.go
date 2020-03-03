@@ -137,8 +137,8 @@ func getCrioLayers(containerID string) ([]string, error) {
 
 	f, err := os.Open(mountPath)
 	if err != nil {
-		fmt.Println("Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
-		time.Sleep(5 * time.Second)
+		fmt.Println("getCrioLayers: Error opening file, waiting 10 seconds in case it just hasn't been created yet: ", mountPath, err)
+		time.Sleep(10 * time.Second)
 		f, err = os.Open(mountPath)
 	}
 
@@ -235,10 +235,12 @@ func getDockerLayers(containerID string, procID int) ([]string, error) {
 
 	mountPath := "/proc/" + strconv.Itoa(procID) + "/mountinfo"
 
+	fmt.Println("Going to open:", mountPath)
+
 	f, err := os.Open(mountPath)
 	if err != nil {
-		fmt.Println("Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
-		time.Sleep(5 * time.Second)
+		fmt.Println("getDockerLayers: Error opening file, waiting 10 seconds in case it just hasn't been created yet: ", mountPath, err)
+		time.Sleep(10 * time.Second)
 		f, err = os.Open(mountPath)
 	}
 

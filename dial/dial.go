@@ -29,5 +29,10 @@ func InfoSrv(containerID, functionName string) []byte {
 		fmt.Println("Error calling server function", err)
 	}
 
+	if len(reply) > 0 {
+		fmt.Println("A reply was returned")
+	} else {
+		fmt.Println("The reply was empty")
+	}
 	return reply
 }

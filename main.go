@@ -11,7 +11,7 @@ import (
 func main() {
 	var line models.LineInfo
 
-	fmt.Println("pleg-watcher v0.0.38, changes to startup wait.")
+	fmt.Println("pleg-watcher v0.0.39, changes to layer mount wait.")
 	line = make(chan string)
 
 	// This gets set up first so that chroot doesn't interfere with libraries loading.
