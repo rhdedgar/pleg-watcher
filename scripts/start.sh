@@ -12,8 +12,6 @@ if [ "$OO_PAUSE_ON_START" = "true" ] ; then
   done
 fi
 
-touch /host/tmp/clamd.sock
-
 # Wait for the clam socket to become available before launching.
 if [ ! -S /clam/clamd.sock ]; then
   n=30
