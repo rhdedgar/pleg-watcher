@@ -14,11 +14,10 @@ fi
 
 # Wait for the clam socket to become available before launching.
 if [ ! -S /clam/clamd.sock ]; then
-  n=30
   until [ -S /clam/clamd.sock ]
   do
-    echo "Failed to find clam socket, trying again in $n seconds."
-    sleep $n
+    echo "Failed to find clam socket, trying again in 30 seconds."
+    sleep 30
   done
 fi
 
