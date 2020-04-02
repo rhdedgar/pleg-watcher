@@ -49,12 +49,16 @@ func SendClamData(sRes api.ScanResult) {
 
 func sendLog(jsonStr []byte, url string) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		fmt.Println("Error creating new HTTP request:", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Error sending to pod-logger: ", err)
+		fmt.Printf("Error sending to pod-logger at %v: %v \n", url, err)
+		fmt.Printf("Could not send %v \n", string(jsonStr[:]))
 		return
 	}
 	defer resp.Body.Close()
