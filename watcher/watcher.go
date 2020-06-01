@@ -20,6 +20,7 @@ type PLEGEvent struct {
 	Data string `json:"Data"`
 }
 
+// quoteVar will quote the first occurrence of substring r found in original string s.
 func quoteVar(s string, r string) string {
 	return strings.Replace(s, r, "\""+r+"\"", 1)
 }

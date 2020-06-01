@@ -29,10 +29,7 @@ func ProcessContainer(containerID string) {
 
 	fmt.Println("ProcessContainer: ", containerID)
 
-	//channels.SetStringChan(models.ChrootChan, containerID)
-	//jbyte := <-models.ChrootOut
-
-	jbyte := dial.InfoSrv(containerID, "GetContainerInfo")
+	jbyte := dial.CallInfoSrv(containerID, "GetContainerInfo")
 
 	if len(jbyte) > 0 {
 		if UseDocker {

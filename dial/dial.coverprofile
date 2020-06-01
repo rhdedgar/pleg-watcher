@@ -1,0 +1,9 @@
+mode: atomic
+github.com/rhdedgar/pleg-watcher/dial/dial.go:12.59,19.16 4 1
+github.com/rhdedgar/pleg-watcher/dial/dial.go:23.2,24.16 2 1
+github.com/rhdedgar/pleg-watcher/dial/dial.go:28.2,28.20 1 1
+github.com/rhdedgar/pleg-watcher/dial/dial.go:33.2,33.14 1 1
+github.com/rhdedgar/pleg-watcher/dial/dial.go:19.16,21.3 1 0
+github.com/rhdedgar/pleg-watcher/dial/dial.go:24.16,26.3 1 0
+github.com/rhdedgar/pleg-watcher/dial/dial.go:28.20,30.3 1 1
+github.com/rhdedgar/pleg-watcher/dial/dial.go:30.8,32.3 1 0

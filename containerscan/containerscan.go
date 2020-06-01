@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rhdedgar/pleg-watcher/channels"
 	clscmd "github.com/rhdedgar/pleg-watcher/cmd"
 	"github.com/rhdedgar/pleg-watcher/dial"
 	"github.com/rhdedgar/pleg-watcher/docker"
@@ -91,9 +90,7 @@ func getRootFS(containerID string) (string, error) {
 	// Avoid race condition with container layers not being written yet
 	time.Sleep(15 * time.Second)
 
-	go channels.SetStringChan(models.RuncChan, containerID)
-
-	jbyte := <-models.RuncOut
+	jbyte := dial.CallInfoSrv(containerID, "GetRuncInfo")
 
 	if err := json.Unmarshal(jbyte, &runcState); err != nil {
 		fmt.Println("Output returned from runc state: ", string(jbyte))
@@ -145,24 +142,16 @@ func getCrioLayers(containerID string) ([]string, error) {
 
 	fmt.Println("Getting cri-o layers: ", containerID)
 
-	//go channels.SetStringChan(models.RuncChan, containerID)
-	//jbyte := <-models.RuncOut
+	jbyte := dial.CallInfoSrv(containerID, "GetRuncInfo")
 
-	jbyte := dial.InfoSrv(containerID, "GetRuncInfo")
-
-	//fmt.Println("Channel returned: ", string(jbyte))
 	if err := json.Unmarshal(jbyte, &runcState); err != nil {
 		fmt.Println(string(jbyte))
 		return crioLayers, fmt.Errorf("Error unmarshalling runc output json: %v", err)
 	}
 
 	pid := runcState.Pid
-	//rootPath := runcState.RootFS
-	//dirPath := filepath.Dir(rootPath)
-	//IDPath := filepath.Base(rootPath)
 
 	mountPath := "/host/proc/" + strconv.Itoa(pid) + "/mountinfo"
-	//mountOutput := ""
 
 	scanOut, err := getLayerInfo(mountPath)
 	if err != nil {
@@ -170,7 +159,6 @@ func getCrioLayers(containerID string) ([]string, error) {
 	}
 
 	layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
-	//layers = append(layers, custReg(scanOut, `upperdir=(.*),workdir`)...)
 
 	for _, l := range layers {
 		items := strings.Split(l, ":")
@@ -181,7 +169,6 @@ func getCrioLayers(containerID string) ([]string, error) {
 			crioLayers = append(crioLayers, j)
 		}
 	}
-	//fmt.Println("returning layers")
 	return crioLayers, nil
 }
 
