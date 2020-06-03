@@ -25,12 +25,12 @@ var (
 	outFile        = os.Getenv("OUT_FILE")
 )
 
-// custSplit takes 3 parameters and returns a string.
+// CustSplit takes 3 parameters and returns a string.
 // s is the string to split.
 // d is the delimiter by which to split s.
 // i is the slice index of the string to return, if applicable. Usually 1 or 0.
 // If the string was not split, the original string is returned idempotently.
-func custSplit(s, d string, i int) string {
+func CustSplit(s, d string, i int) string {
 	tempS := s
 	splits := strings.Split(s, d)
 
@@ -41,12 +41,12 @@ func custSplit(s, d string, i int) string {
 	return tempS
 }
 
-// custReg takes 2 arguments and returns a string slice.
+// CustReg takes 2 arguments and returns a string slice.
 //
 // scanOut is the string output from the container /proc/$PID/mountinfo file.
 //
 // regString is the `raw string` containing the regex match pattern to use.
-func custReg(scanOut, regString string) []string {
+func CustReg(scanOut, regString string) []string {
 	var newLayers []string
 
 	reg := regexp.MustCompile(regString)
@@ -61,14 +61,14 @@ func custReg(scanOut, regString string) []string {
 	return newLayers
 }
 
-// mountOverlayFS takes a slice of strings containing OverlayFS layer paths
+// MountOverlayFS takes a slice of strings containing OverlayFS layer paths
 // and mounts them to a read-only /mnt dir named after their container ID.
-func mountOverlayFS(layers []string, cID string) (string, error) {
+func MountOverlayFS(layers []string, cID string) (string, error) {
 	scanDir := "/mnt/" + cID
 
-	err := os.Mkdir(scanDir, 0700)
+	err := os.MkdirAll(scanDir, 0700)
 	if err != nil {
-		return "", fmt.Errorf("Error creating scanDir: %v", err)
+		return scanDir, fmt.Errorf("Error creating scanDir: %v", err)
 	}
 
 	overlayPath := "lowerdir=/host" + strings.Join(layers, ":/host")
@@ -76,44 +76,53 @@ func mountOverlayFS(layers []string, cID string) (string, error) {
 
 	err = unix.Mount("overlay", scanDir, "overlay", unix.MS_NODEV|unix.MS_NOEXEC|unix.MS_RDONLY, overlayPath)
 	if err != nil {
-		return "", fmt.Errorf("Error mounting scanDir: %v", err)
+		return scanDir, fmt.Errorf("Error mounting scanDir: %v", err)
 	}
 
 	return scanDir, nil
 }
 
-func getRootFS(containerID string) (string, error) {
+// GetRootFS returns the root file system path for a container returned by "runc state <containerID>"
+func GetRootFS(containerID string) (string, error) {
 	var runcState runcspec.RuncState
 
 	fmt.Println("Getting root container layer for: ", containerID)
 
-	// Avoid race condition with container layers not being written yet
-	time.Sleep(15 * time.Second)
+	// Avoid race condition with container info not being available yet
+	for i := 1; i <= 6; i++ {
+		jbyte := dial.CallInfoSrv(containerID, "GetRuncInfo")
 
-	jbyte := dial.CallInfoSrv(containerID, "GetRuncInfo")
+		if len(jbyte) == 0 {
+			if i > 5 {
+				return "", fmt.Errorf("GetRootFS: Error getting root FS")
+			}
+			time.Sleep(time.Duration(i) * time.Second)
+			continue
+		} else {
+			if err := json.Unmarshal(jbyte, &runcState); err != nil {
+				fmt.Println("Output returned from runc state: ", string(jbyte))
+				return "", fmt.Errorf("Error unmarshalling runc output json: %v", err)
+			}
 
-	if err := json.Unmarshal(jbyte, &runcState); err != nil {
-		fmt.Println("Output returned from runc state: ", string(jbyte))
-		return "", fmt.Errorf("Error unmarshalling runc output json: %v", err)
+			if runcState.RootFS != "" {
+				return runcState.RootFS, nil
+			}
+		}
 	}
-
-	if runcState.RootFS != "" {
-		return runcState.RootFS, nil
-	}
-
 	return "", fmt.Errorf("Output of runc state RootFS was empty")
 }
 
-func getLayerInfo(mountPath string) (string, error) {
+// GetLayerInfo reads /host/proc/<PID>/mountinfo and returns the line containing OverlayFS mount directories.
+func GetLayerInfo(mountPath string) (string, error) {
 	var scanOut string
 
 	for i := 0; i <= 5; i++ {
 		f, err := os.Open(mountPath)
 		if err != nil {
 			if i >= 5 {
-				return "", fmt.Errorf("getLayerInfo: Error returning layers")
+				return "", fmt.Errorf("GetLayerInfo: Error returning layers")
 			}
-			fmt.Println("getCrioLayers: Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
+			fmt.Println("GetLayerInfo: Error opening file, waiting 5 seconds in case it just hasn't been created yet: ", mountPath, err)
 			time.Sleep(5 * time.Second)
 			continue
 		} else {
@@ -124,7 +133,7 @@ func getLayerInfo(mountPath string) (string, error) {
 			scanOut = bufScan.Text()
 
 			if err := bufScan.Err(); err != nil {
-				return "", fmt.Errorf("Error reading layer %v", err)
+				return "", fmt.Errorf("GetLayerInfo: Error reading layer %v", err)
 			}
 			break
 		}
@@ -153,18 +162,18 @@ func getCrioLayers(containerID string) ([]string, error) {
 
 	mountPath := "/host/proc/" + strconv.Itoa(pid) + "/mountinfo"
 
-	scanOut, err := getLayerInfo(mountPath)
+	scanOut, err := GetLayerInfo(mountPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
+	layers = append(layers, CustReg(scanOut, `lowerdir=(.*),upperdir`)...)
 
 	for _, l := range layers {
 		items := strings.Split(l, ":")
 		for _, i := range items {
-			j := custSplit(i, ",", 0)
-			j = custSplit(j, "=", 1)
+			j := CustSplit(i, ",", 0)
+			j = CustSplit(j, "=", 1)
 
 			crioLayers = append(crioLayers, j)
 		}
@@ -195,7 +204,7 @@ func PrepCrioScan(cCon models.Status) {
 	}
 	fmt.Println(cLayers)
 
-	scanDir, err := mountOverlayFS(cLayers, cID)
+	scanDir, err := MountOverlayFS(cLayers, cID)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -258,13 +267,13 @@ func getDockerLayers(containerID string, procID int) ([]string, error) {
 		return dockerLayers, fmt.Errorf("Error reading layer %v", err)
 	}
 
-	layers = append(layers, custReg(scanOut, `lowerdir=(.*),upperdir`)...)
+	layers = append(layers, CustReg(scanOut, `lowerdir=(.*),upperdir`)...)
 
 	for _, l := range layers {
 		items := strings.Split(l, ":")
 		for _, i := range items {
-			j := custSplit(i, ",", 0)
-			j = custSplit(j, "=", 1)
+			j := CustSplit(i, ",", 0)
+			j = CustSplit(j, "=", 1)
 
 			dockerLayers = append(dockerLayers, j)
 		}
@@ -296,7 +305,7 @@ func PrepDockerScan(dCon docker.DockerContainer) {
 	}
 	fmt.Println(cLayers)
 
-	scanDir, err := mountOverlayFS(cLayers, cID)
+	scanDir, err := MountOverlayFS(cLayers, cID)
 	if err != nil {
 		fmt.Println(err)
 		return
