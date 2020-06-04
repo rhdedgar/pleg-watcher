@@ -1,0 +1,19 @@
+mode: atomic
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:26.49,34.20 5 1
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:62.2,62.12 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:34.20,35.16 1 1
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:35.16,37.55 2 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:40.4,40.87 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:37.55,39.5 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:40.87,42.5 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:42.10,42.48 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:42.48,46.5 3 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:47.9,48.55 1 1
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:52.4,52.84 1 1
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:48.55,51.5 2 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:52.84,54.5 1 1
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:54.10,54.55 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:54.55,57.5 2 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:59.8,61.3 1 0
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:65.13,66.67 1 1
+github.com/rhdedgar/pleg-watcher/containerinfo/containerinfo.go:66.67,70.3 3 1

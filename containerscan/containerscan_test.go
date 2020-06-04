@@ -139,7 +139,6 @@ var _ = Describe("Containerscan", func() {
 		Context("Validate we can read runc state output", func() {
 			It("Should find and return the rootfs field of the example runc state output", func() {
 				result, err := GetRootFS("./runc_state_example.json")
-				fmt.Println("result is", result)
 				Expect(result).To(Equal(rootFS))
 				Expect(err).To(BeNil())
 			})

@@ -45,7 +45,10 @@ func CheckOutput(line <-chan string) {
 				if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
 					fmt.Println("Error unmarshalling plegEvent json: ", err)
 				}
-				containerinfo.ProcessContainer(plegEvent.Data)
+
+				if err := containerinfo.ProcessContainer(plegEvent.Data); err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	}
