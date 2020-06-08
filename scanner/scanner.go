@@ -75,7 +75,7 @@ func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 
 	fmt.Println("The results slice: ", i.ScanOutputs.ScanResults.Results)
 	if len(i.opts.OutFile) > 0 {
-		if err := i.writeFile(i.ScanOutputs.ScanResults); err != nil {
+		if err := i.WriteFile(i.ScanOutputs.ScanResults); err != nil {
 			fmt.Printf("Error writing file: %v", err)
 			return err
 		}
@@ -84,7 +84,7 @@ func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 	return nil
 }
 
-func (i *defaultContainerLayerScanner) writeFile(scanResults api.ScanResult) error {
+func (i *defaultContainerLayerScanner) WriteFile(scanResults api.ScanResult) error {
 	outFile := i.opts.OutFile
 	fmt.Printf("Writing results to %q ...", outFile)
 

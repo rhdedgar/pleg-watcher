@@ -8,5 +8,7 @@ require (
 	github.com/onsi/ginkgo v1.12.3
 	github.com/onsi/gomega v1.10.1
 	github.com/openshift/clam-scanner v0.0.0-20170918135446-9f39c23ef966
+	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299
+	gotest.tools v2.2.0+incompatible
 )

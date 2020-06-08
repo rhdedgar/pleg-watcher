@@ -1,0 +1,19 @@
+mode: atomic
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:35.107,46.2 3 2
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:49.63,59.16 4 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:64.2,65.16 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:70.2,71.81 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:76.2,77.29 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:84.2,84.12 1 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:59.16,62.3 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:65.16,68.3 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:71.81,74.3 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:77.29,78.64 1 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:78.64,81.4 2 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:87.84,92.16 4 1
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:96.2,99.16 3 1
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:103.2,104.16 2 1
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:107.2,109.12 2 1
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:92.16,94.3 1 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:99.16,101.3 1 0
+github.com/rhdedgar/pleg-watcher/scanner/scanner.go:104.16,106.3 1 0
