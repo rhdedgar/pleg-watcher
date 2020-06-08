@@ -27,8 +27,6 @@ func ProcessContainer(containerID string) error {
 	var dCon docker.DockerContainer
 	var cCon models.Status
 
-	fmt.Println("ProcessContainer: ", containerID)
-
 	jbyte := dial.CallInfoSrv(containerID, "GetContainerInfo")
 
 	if len(jbyte) > 0 {

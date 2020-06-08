@@ -3,7 +3,6 @@ package watcher
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"time"
@@ -20,35 +19,47 @@ type PLEGEvent struct {
 	Data string `json:"Data"`
 }
 
-// quoteVar will quote the first occurrence of substring r found in original string s.
-func quoteVar(s string, r string) string {
+// QuoteVar will quote the first occurrence of substring r found in original string s.
+func QuoteVar(s, r string) string {
 	return strings.Replace(s, r, "\""+r+"\"", 1)
+}
+
+// Format converts systemd output into a usable, JSON-compatible go struct
+func Format(inputStr string) (PLEGEvent, error) {
+	var plegEvent PLEGEvent
+
+	if strings.Contains(inputStr, "ContainerStarted") {
+		fmt.Println("Found container started event", inputStr)
+
+		// Gather only the unquoted json of the PLEG Event.
+		out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
+
+		// Quote the json so it can be Unmarshaled into a struct
+		for _, item := range []string{"ID", "Type", "Data"} {
+			out = QuoteVar(out, item)
+		}
+
+		if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
+			return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n", err)
+		}
+
+	}
+	return plegEvent, nil
 }
 
 // CheckOutput filters through new systemd lines as they're received from a string channel.
 func CheckOutput(line <-chan string) {
-	var plegEvent PLEGEvent
-
 	for {
 		select {
 		case inputStr := <-line:
-			if strings.Contains(inputStr, "ContainerStarted") {
-				fmt.Println("Found container started event", inputStr)
-				// Gather only the unquoted json of the PLEG Event.
-				out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
+			plegEvent, err := Format(inputStr)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
 
-				// Quote the json so it can be Unmarshaled into a struct
-				for _, item := range []string{"ID", "Type", "Data"} {
-					out = quoteVar(out, item)
-				}
-
-				if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
-					fmt.Println("Error unmarshalling plegEvent json: ", err)
-				}
-
-				if err := containerinfo.ProcessContainer(plegEvent.Data); err != nil {
-					fmt.Println(err)
-				}
+			if err := containerinfo.ProcessContainer(plegEvent.Data); err != nil {
+				fmt.Println(err)
 			}
 		}
 	}
@@ -89,18 +100,4 @@ func PLEGWatch(out *models.LineInfo) {
 	if err := r.Follow(until, out); err != nil {
 		fmt.Printf("Could not read from journal: %s\n", err)
 	}
-}
-
-func isEmpty(name string) (bool, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-
-	_, err = f.Readdirnames(1)
-	if err == io.EOF {
-		return true, nil
-	}
-	return false, err
 }
