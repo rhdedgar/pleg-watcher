@@ -1,0 +1,21 @@
+mode: atomic
+github.com/rhdedgar/pleg-watcher/sender/sender.go:16.63,18.16 2 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:21.2,22.16 2 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:25.2,25.18 1 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:18.16,20.3 1 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:22.16,24.3 1 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:29.53,31.16 2 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:34.2,35.16 2 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:38.2,38.18 1 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:31.16,33.3 1 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:35.16,37.3 1 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:42.53,44.16 2 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:47.2,48.16 2 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:51.2,51.18 1 1
+github.com/rhdedgar/pleg-watcher/sender/sender.go:44.16,46.3 1 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:48.16,50.3 1 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:54.55,56.16 2 3
+github.com/rhdedgar/pleg-watcher/sender/sender.go:60.2,64.16 4 3
+github.com/rhdedgar/pleg-watcher/sender/sender.go:69.2,71.29 2 3
+github.com/rhdedgar/pleg-watcher/sender/sender.go:56.16,59.3 2 0
+github.com/rhdedgar/pleg-watcher/sender/sender.go:64.16,68.3 3 0

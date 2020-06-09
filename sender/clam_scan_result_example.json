@@ -1,0 +1,1 @@
+{"apiVersion":"v1alpha","containerID":"","imageID":"","imageName":"","nameSpace":"positive-signature-project","podName":"v3simplebottle-1-849pt","results":[{"description":"Test.immediate.takedown.A(OpenShift).UNOFFICIAL FOUND","name":"clamav","reference":"file:///opt/app-root/src/app.py","scannerVersion":"0.101.2","timestamp":"2020-04-27T21:54:56.239259091Z"}],"userName":""}

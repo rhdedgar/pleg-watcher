@@ -5,52 +5,57 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/rhdedgar/pleg-watcher/api"
+	"github.com/rhdedgar/pleg-watcher/config"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
 )
 
-var (
-	dockerURL = os.Getenv("DOCKER_LOG_URL")
-	crioURL   = os.Getenv("CRIO_LOG_URL")
-	clamURL   = os.Getenv("CLAM_LOG_URL")
-)
-
 // SendDockerData Marshals and POSTs json data to the pod-logger service.
-func SendDockerData(dCon docker.DockerContainer) {
+func SendDockerData(dCon docker.DockerContainer) (int, error) {
 	jsonStr, err := json.Marshal(dCon)
 	if err != nil {
-		fmt.Println("Error marshalling docker json to send to pod-logger: ", err)
-		return
+		return 0, fmt.Errorf("Error marshalling docker json to send to pod-logger: %v\n", err)
 	}
-	sendLog(jsonStr, dockerURL)
+	resp, err := sendLog(jsonStr, config.DockerURL)
+	if err != nil {
+		return 0, fmt.Errorf("Error sending log: %v\n", err)
+	}
+	return resp, nil
 }
 
 // SendCrioData Marshals and POSTs json data to the pod-logger service.
-func SendCrioData(mStat models.Status) {
+func SendCrioData(mStat models.Status) (int, error) {
 	jsonStr, err := json.Marshal(mStat)
 	if err != nil {
-		fmt.Println("Error marshalling crio json to send to pod-logger: ", err)
+		return 0, fmt.Errorf("Error marshalling crio json to send to pod-logger: %v\n", err)
 	}
-	sendLog(jsonStr, crioURL)
+	resp, err := sendLog(jsonStr, config.CrioURL)
+	if err != nil {
+		return 0, fmt.Errorf("Error sending log: %v\n", err)
+	}
+	return resp, nil
 }
 
 // SendClamData Marshals and POSTs json data to the pod-logger service.
-func SendClamData(sRes api.ScanResult) {
+func SendClamData(sRes api.ScanResult) (int, error) {
 	jsonStr, err := json.Marshal(sRes)
 	if err != nil {
-		fmt.Println("Error marshalling clam json to send to pod-logger: ", err)
-		return
+		return 0, fmt.Errorf("Error marshalling clam json to send to pod-logger: %v\n", err)
 	}
-	sendLog(jsonStr, clamURL)
+	resp, err := sendLog(jsonStr, config.ClamURL)
+	if err != nil {
+		return 0, fmt.Errorf("Error sending log: %v\n", err)
+	}
+	return resp, nil
 }
 
-func sendLog(jsonStr []byte, url string) {
+func sendLog(jsonStr []byte, url string) (int, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		fmt.Println("Error creating new HTTP request:", err)
+		return 0, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -59,10 +64,9 @@ func sendLog(jsonStr []byte, url string) {
 	if err != nil {
 		fmt.Printf("Error sending to pod-logger at %v: %v \n", url, err)
 		fmt.Printf("Could not send %v \n", string(jsonStr[:]))
-		return
+		return 0, err
 	}
 	defer resp.Body.Close()
 
-	// TODO Prometheus to check header response
-	fmt.Println("response Status:", resp.Status)
+	return resp.StatusCode, nil
 }

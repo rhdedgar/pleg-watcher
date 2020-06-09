@@ -1,0 +1,60 @@
+{
+  "status": {
+    "id": "9a547702262bc9e540ab58a712279111ed212cd1a5940f54635bdebdd55d37ff",
+    "metadata": {
+      "attempt": 0,
+      "name": "download-server"
+    },
+    "state": "CONTAINER_RUNNING",
+    "createdAt": "2020-05-05T01:54:51.516330317Z",
+    "startedAt": "2020-05-05T01:54:51.551480507Z",
+    "finishedAt": "1970-01-01T00:00:00Z",
+    "exitCode": 0,
+    "image": {
+      "image": "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:a30f8019d69be0052b37e90a5fe25d15b9f375a2b19a71bbc67cd8577e5314fa"
+    },
+    "imageRef": "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:a30f8019d69be0052b37e90a5fe25d15b9f375a2b19a71bbc67cd8577e5314fa",
+    "reason": "",
+    "message": "",
+    "labels": {
+      "io.kubernetes.container.name": "download-server",
+      "io.kubernetes.pod.name": "downloads-579d5c8c88-42n28",
+      "io.kubernetes.pod.namespace": "openshift-console",
+      "io.kubernetes.pod.uid": "68f187d1-cdd2-4d0d-bae6-c81ee1a9f6a6"
+    },
+    "annotations": {
+      "io.kubernetes.container.hash": "a7901ad",
+      "io.kubernetes.container.ports": "[{\"name\":\"http\",\"containerPort\":8080,\"protocol\":\"TCP\"}]",
+      "io.kubernetes.container.restartCount": "0",
+      "io.kubernetes.container.terminationMessagePath": "/dev/termination-log",
+      "io.kubernetes.container.terminationMessagePolicy": "FallbackToLogsOnError",
+      "io.kubernetes.pod.terminationGracePeriod": "30"
+    },
+    "mounts": [
+      {
+        "containerPath": "/etc/hosts",
+        "hostPath": "/var/lib/kubelet/pods/68f187d1-cdd2-4d0d-bae6-c81ee1a9f6a6/etc-hosts",
+        "propagation": "PROPAGATION_PRIVATE",
+        "readonly": false,
+        "selinuxRelabel": false
+      },
+      {
+        "containerPath": "/dev/termination-log",
+        "hostPath": "/var/lib/kubelet/pods/68f187d1-cdd2-4d0d-bae6-c81ee1a9f6a6/containers/download-server/38307ec5",
+        "propagation": "PROPAGATION_PRIVATE",
+        "readonly": false,
+        "selinuxRelabel": false
+      },
+      {
+        "containerPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+        "hostPath": "/var/lib/kubelet/pods/68f187d1-cdd2-4d0d-bae6-c81ee1a9f6a6/volumes/kubernetes.io~secret/default-token-46pf5",
+        "propagation": "PROPAGATION_PRIVATE",
+        "readonly": true,
+        "selinuxRelabel": false
+      }
+    ],
+    "logPath": "/var/log/pods/openshift-console_downloads-579d5c8c88-42n28_68f187d1-cdd2-4d0d-bae6-c81ee1a9f6a6/download-server/0.log"
+  },
+  "pid": 5486,
+  "sandboxId": "770138c542983d6e8d0a902ee6a841a8493ca1a58b3ad28bb807d441f6f04aae"
+}
