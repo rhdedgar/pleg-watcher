@@ -59,6 +59,7 @@ var _ = Describe("Scanner", func() {
 				scanner := NewDefaultContainerLayerScanner(*scannerOptions)
 				scanner.ScanOutputs.ScanResults = *scanResults
 
+				// use WriteFile, check that it exists, open it
 				err := scanner.WriteFile(scanner.ScanOutputs.ScanResults)
 				Expect(err).To(BeNil())
 
@@ -68,14 +69,18 @@ var _ = Describe("Scanner", func() {
 				file, err := os.Open(outFile)
 				Expect(err).To(BeNil())
 
+				// defer stack is LIFO
 				defer file.Close()
+				defer os.Remove(outFile)
 
+				// reading one line from outFile
 				bufScanner := bufio.NewScanner(file)
 				bufScanner.Scan()
 
 				err = bufScanner.Err()
 				Expect(err).To(BeNil())
 
+				// finally, compare with our example struct
 				err = json.Unmarshal(bufScanner.Bytes(), &result)
 				Expect(err).To(BeNil())
 
