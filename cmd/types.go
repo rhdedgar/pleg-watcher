@@ -40,7 +40,7 @@ type ContainerLayerScannerOptions struct {
 	OutFile string
 }
 
-// NewDefaultContainerLayerScannerOptions provides a new ImageInspectorOptions with default values.
+// NewDefaultContainerLayerScannerOptions provides a new ContainerLayerScannerOptions with default values.
 func NewDefaultContainerLayerScannerOptions() *ContainerLayerScannerOptions {
 	return &ContainerLayerScannerOptions{
 		ScanDir:        "",
