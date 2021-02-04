@@ -11,6 +11,7 @@ import (
 	"time"
 
 	clscmd "github.com/rhdedgar/pleg-watcher/cmd"
+	"github.com/rhdedgar/pleg-watcher/config"
 	"github.com/rhdedgar/pleg-watcher/dial"
 	"github.com/rhdedgar/pleg-watcher/docker"
 	"github.com/rhdedgar/pleg-watcher/models"
@@ -20,9 +21,9 @@ import (
 )
 
 var (
-	scanResultsDir = os.Getenv("SCAN_RESULTS_DIR")
-	postResultURL  = os.Getenv("POST_RESULT_URL")
-	outFile        = os.Getenv("OUT_FILE")
+	scanResultsDir = config.ScanResultsDir
+	postResultURL  = config.PostResultURL
+	outFile        = config.OutFile
 )
 
 // CustSplit takes 3 parameters and returns a string.
@@ -188,7 +189,7 @@ func PrepCrioScan(cCon models.Status) {
 		cCon.Status.Labels.IoKubernetesPodName,
 		cCon.Status.Labels.IoKubernetesPodNamespace)
 
-	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
+	scannerOptions := clscmd.NewDefaultManagedScannerOptions()
 	cID := cCon.Status.ID
 
 	cLayers, err := getCrioLayers(cID)
@@ -219,7 +220,7 @@ func PrepCrioScan(cCon models.Status) {
 		fmt.Println("Error validating scanner options: ", err)
 	}
 
-	scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
+	scanner := mainscan.NewDefaultManagedScanner(*scannerOptions)
 	scanner.ScanOutputs.ScanResults.NameSpace = cCon.Status.Labels.IoKubernetesPodNamespace
 	scanner.ScanOutputs.ScanResults.PodName = cCon.Status.Labels.IoKubernetesPodName
 
@@ -288,7 +289,7 @@ func PrepDockerScan(dCon docker.DockerContainer) {
 		dCon[0].Config.Labels.IoKubernetesPodName,
 		dCon[0].Config.Labels.IoKubernetesPodNamespace)
 
-	scannerOptions := clscmd.NewDefaultContainerLayerScannerOptions()
+	scannerOptions := clscmd.NewDefaultManagedScannerOptions()
 	cID := dCon[0].ID
 	pID := dCon[0].State.Pid
 
@@ -320,7 +321,7 @@ func PrepDockerScan(dCon docker.DockerContainer) {
 		fmt.Println("Error validating scanner options: ", err)
 	}
 
-	scanner := mainscan.NewDefaultContainerLayerScanner(*scannerOptions)
+	scanner := mainscan.NewDefaultManagedScanner(*scannerOptions)
 	scanner.ScanOutputs.ScanResults.NameSpace = dCon[0].Config.Labels.IoKubernetesPodNamespace
 	scanner.ScanOutputs.ScanResults.PodName = dCon[0].Config.Labels.IoKubernetesPodName
 

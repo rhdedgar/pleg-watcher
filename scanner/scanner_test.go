@@ -36,12 +36,12 @@ var _ = Describe("Scanner", func() {
 		}
 	)
 
-	Describe("NewDefaultContainerLayerScanner", func() {
+	Describe("NewDefaultManagedScanner", func() {
 		Context("Validate new container layer scanners get created", func() {
-			It("Should return a new *defaultContainerLayerScanner", func() {
-				scannerOptions := cmd.NewDefaultContainerLayerScannerOptions()
+			It("Should return a new *defaultManagedScanner", func() {
+				scannerOptions := cmd.NewDefaultManagedScannerOptions()
 
-				scanner := NewDefaultContainerLayerScanner(*scannerOptions)
+				scanner := NewDefaultManagedScanner(*scannerOptions)
 
 				Expect(scanner.ScanOutputs.ScanResults.APIVersion).To(Equal("v1alpha"))
 			})
@@ -53,10 +53,10 @@ var _ = Describe("Scanner", func() {
 			It("Should write an api.ScanResult to a file on disk", func() {
 				var result api.ScanResult
 
-				scannerOptions := cmd.NewDefaultContainerLayerScannerOptions()
+				scannerOptions := cmd.NewDefaultManagedScannerOptions()
 				scannerOptions.OutFile = outFile
 
-				scanner := NewDefaultContainerLayerScanner(*scannerOptions)
+				scanner := NewDefaultManagedScanner(*scannerOptions)
 				scanner.ScanOutputs.ScanResults = *scanResults
 
 				// use WriteFile, check that it exists, open it

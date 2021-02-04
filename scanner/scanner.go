@@ -12,12 +12,6 @@ import (
 	"github.com/rhdedgar/pleg-watcher/sender"
 )
 
-// ContainerLayerScanner is the interface for all image containerLayerScanners.
-//type ContainerLayerScanner interface {
-// Inspect inspects and serves the image based on the ContainerLayerScannerOptions.
-//	ClamScanner() error
-//}
-
 // ScanOutputs is a struct to hold all the scan outputs that needs to be served
 type ScanOutputs struct {
 	ScanReport     []byte
@@ -25,28 +19,28 @@ type ScanOutputs struct {
 	ScanResults    api.ScanResult
 }
 
-// defaultContainerLayerScanner is the default implementation of ContainerLayerScanner.
-type defaultContainerLayerScanner struct {
-	opts        cmd.ContainerLayerScannerOptions
+// defaultManagedScanner is the default implementation of ManagedScanner.
+type defaultManagedScanner struct {
+	opts        cmd.ManagedScannerOptions
 	ScanOutputs ScanOutputs
 }
 
-// NewDefaultContainerLayerScanner provides a new default scanner.
-func NewDefaultContainerLayerScanner(opts cmd.ContainerLayerScannerOptions) *defaultContainerLayerScanner {
-	containerLayerScanner := &defaultContainerLayerScanner{
+// NewDefaultManagedScanner provides a new default scanner.
+func NewDefaultManagedScanner(opts cmd.ManagedScannerOptions) *defaultManagedScanner {
+	ManagedScanner := &defaultManagedScanner{
 		opts: opts,
 	}
 
-	containerLayerScanner.ScanOutputs.ScanResults = api.ScanResult{
+	ManagedScanner.ScanOutputs.ScanResults = api.ScanResult{
 		APIVersion: api.DefaultResultsAPIVersion,
 		Results:    []api.Result{},
 	}
 
-	return containerLayerScanner
+	return ManagedScanner
 }
 
-// AcquireAndScan acquires and scans the image based on the ContainerLayerScannerOptions.
-func (i *defaultContainerLayerScanner) AcquireAndScan() error {
+// AcquireAndScan acquires and scans the image based on the ManagedScannerOptions.
+func (i *defaultManagedScanner) AcquireAndScan() error {
 	var (
 		scanner  api.Scanner
 		err      error
@@ -84,7 +78,7 @@ func (i *defaultContainerLayerScanner) AcquireAndScan() error {
 	return nil
 }
 
-func (i *defaultContainerLayerScanner) WriteFile(scanResults api.ScanResult) error {
+func (i *defaultManagedScanner) WriteFile(scanResults api.ScanResult) error {
 	outFile := i.opts.OutFile
 	fmt.Printf("Writing results to %q ...", outFile)
 

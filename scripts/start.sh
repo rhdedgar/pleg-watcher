@@ -21,6 +21,25 @@ if [ ! -S /clam/clamd.sock ]; then
   done
 fi
 
+if [ "SCHEDULED_SCAN" = "true" ] ; then
+  echo "Evironment set to scheduled scan."
+  
+  hour_stagger="$((RANDOM % 24))"
+  minute_stagger="$((RANDOM % 60))"
+
+  while true; do
+    current_time=$(date +%s)
+    selection_time=$(date -d "this $SCHEDULED_SCAN_DAY" '+%s')
+
+    sleep_seconds=$(( $target - $current ))
+
+    sleep $sleep_seconds
+
+    /usr/bin/pleg-watcher
+    sleep 1d
+  done
+fi
+
 echo This container hosts the following applications:
 echo
 echo '/usr/bin/pleg-watcher'

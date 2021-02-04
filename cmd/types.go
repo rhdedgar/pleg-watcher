@@ -24,9 +24,9 @@ func (sv *MultiStringVar) String() string {
 	return fmt.Sprintf("%v", sv.Values)
 }
 
-// ContainerLayerScannerOptions is the main scanner implementation and holds the configuration
+// ManagedScannerOptions is the main scanner implementation and holds the configuration
 // for a clam scanner.
-type ContainerLayerScannerOptions struct {
+type ManagedScannerOptions struct {
 	// ScanDir is the name of the directory to be scanned.
 	ScanDir string
 	// ScanResultsDir is the directory that will contain the results of the scan
@@ -40,9 +40,9 @@ type ContainerLayerScannerOptions struct {
 	OutFile string
 }
 
-// NewDefaultContainerLayerScannerOptions provides a new ContainerLayerScannerOptions with default values.
-func NewDefaultContainerLayerScannerOptions() *ContainerLayerScannerOptions {
-	return &ContainerLayerScannerOptions{
+// NewDefaultManagedScannerOptions provides a new ManagedScannerOptions with default values.
+func NewDefaultManagedScannerOptions() *ManagedScannerOptions {
+	return &ManagedScannerOptions{
 		ScanDir:        "",
 		ScanResultsDir: "",
 		ClamSocket:     DefaultClamSocketLocation,
@@ -52,7 +52,7 @@ func NewDefaultContainerLayerScannerOptions() *ContainerLayerScannerOptions {
 }
 
 // Validate performs validation on the field settings.
-func (i *ContainerLayerScannerOptions) Validate() error {
+func (i *ManagedScannerOptions) Validate() error {
 	if len(i.ScanDir) == 0 {
 		return fmt.Errorf("a directory to scan must be specified")
 	}

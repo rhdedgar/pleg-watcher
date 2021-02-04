@@ -16,4 +16,19 @@ var (
 	// ClamURL is the URL path of the server that listens for POSTed JSON
 	// data consisting of positive clam scan output.
 	ClamURL = os.Getenv("CLAM_LOG_URL")
+	// SkipNamespaces is a comma separated list of specific namespaces
+	// to exclude from scan operations.
+	SkipNamespaces = os.Getenv("SKIP_NAMESPACES")
+	// SkipNamespacePrefixes is comma separated list of namespace prefixes
+	// to exclude from scanning. e.g. ("openshift-")
+	SkipNamespacePrefixes = os.Getenv("SKIP_NAMESPACE_PREFIXES")
+	// ScanResultsDir is the optional directory in which to write out positive scan results.
+	// This could be directory that Splunk searches for container log files if not using PostResultURL.
+	ScanResultsDir = os.Getenv("SCAN_RESULTS_DIR")
+	// PostResultURL is the OpenShift service URL or route where we send positive scan results.
+	PostResultURL = os.Getenv("POST_RESULT_URL")
+	// OutFile is an optional parameter for writing positive scan results locally.
+	OutFile = os.Getenv("OUT_FILE")
+	// ScanDirs is a comma-separated list of directories to include in scheduled host filesystem scans.
+	ScanDirs = os.Getenv("SCAN_DIRS")
 )

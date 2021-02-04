@@ -9,7 +9,7 @@ import (
 // The default version for the result API object
 const DefaultResultsAPIVersion = "v1alpha"
 
-// ScanResult represents the compacted result of all scans performed on the image
+// ScanResult represents the compacted result of all scans performed on the target
 type ScanResult struct {
 	// APIVersion represents an API version for this result
 	APIVersion string `json:"apiVersion"`
@@ -19,11 +19,11 @@ type ScanResult struct {
 	// Note that we don't set the imageID when a container is the target of the scan.
 	ImageID string `json:"imageID,omitempty"`
 	// ImageName is a full pull spec of the input image
-	ImageName string `json:"imageName"`
+	ImageName string `json:"imageName,omitempty"`
 	// NameSpace is the namespace in which the container was created
-	NameSpace string `json:"nameSpace"`
+	NameSpace string `json:"nameSpace,omitempty"`
 	// PodName is the name of the pod in which the container was created
-	PodName string `json:"podName"`
+	PodName string `json:"podName,omitempty"`
 	// Results contains compacted results of various scans performed on the image.
 	// Empty results means no problems were found with the given image.
 	Results []Result `json:"results,omitempty"`
