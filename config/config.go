@@ -30,5 +30,5 @@ var (
 	// OutFile is an optional parameter for writing positive scan results locally.
 	OutFile = os.Getenv("OUT_FILE")
 	// ScanDirs is a comma-separated list of directories to include in scheduled host filesystem scans.
-	ScanDirs = os.Getenv("SCAN_DIRS")
+	ScanDirs = os.Getenv("HOST_SCAN_DIRS")
 )

@@ -81,7 +81,7 @@ func ProcessContainer(containerID string) error {
 		podNS := cCon.Status.Labels.IoKubernetesPodNamespace
 
 		if skipNamespace(podNS) {
-			return fmt.Errorf("Container is in %v namespace, skipping\n", podNS)
+			return fmt.Errorf("Container is in the %v namespace, skipping\n", podNS)
 
 		} else if cCon.Status.State == "CONTAINER_RUNNING" {
 			go containerscan.PrepCrioScan(cCon)

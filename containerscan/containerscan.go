@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	clscmd "github.com/rhdedgar/pleg-watcher/cmd"
@@ -24,6 +25,8 @@ var (
 	scanResultsDir = config.ScanResultsDir
 	postResultURL  = config.PostResultURL
 	outFile        = config.OutFile
+	// scanMX is a mutex to limit scans to 1 at a time per watcher container.
+	scanMX sync.Mutex
 )
 
 // CustSplit takes 3 parameters and returns a string.
@@ -205,6 +208,9 @@ func PrepCrioScan(cCon models.Status) {
 	}
 	fmt.Println(cLayers)
 
+	fmt.Println("Get or wait for the scan lock before starting a new scan.")
+	scanMX.Lock()
+
 	scanDir, err := MountOverlayFS(cLayers, cID)
 	if err != nil {
 		fmt.Println(err)
@@ -227,6 +233,9 @@ func PrepCrioScan(cCon models.Status) {
 	if err := scanner.AcquireAndScan(); err != nil {
 		fmt.Println("Error returned from scanner: ", err)
 	}
+
+	fmt.Println("Unlocking the scan lock after finishing scan.")
+	scanMX.Unlock()
 
 	err = unix.Unmount(scanDir, 0)
 	if err != nil {

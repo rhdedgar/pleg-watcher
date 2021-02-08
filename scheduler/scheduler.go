@@ -18,12 +18,10 @@ import (
 func ScheduledContainerScan() {
 	var crictlOutput crictilspec.Containers
 
-	fmt.Println("Starting scheduled scanner")
-
 	jbyte := dial.GetContainerInfo()
 
 	if len(jbyte) > 0 {
-		fmt.Println("Container list returned empty")
+		fmt.Println("Container list returned empty.")
 	}
 
 	if err := json.Unmarshal(jbyte, &crictlOutput); err != nil {
@@ -38,11 +36,13 @@ func ScheduledContainerScan() {
 
 // ScheduledHostScan performs a malware scan on the node/host OS files
 func ScheduledHostScan() {
-	fmt.Println("Starting scheduled host scan")
-
 	scanDirs := strings.Split(config.ScanDirs, ",")
 
+	fmt.Printf("%v top-level directories to scan", len(scanDirs))
+
 	for _, scanDir := range scanDirs {
+		fmt.Println("Scanning directory:", scanDir)
+
 		scannerOptions := clscmd.NewDefaultManagedScannerOptions()
 		scannerOptions.PostResultURL = config.PostResultURL
 		scannerOptions.OutFile = config.OutFile

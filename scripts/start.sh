@@ -33,7 +33,9 @@ if [ "SCHEDULED_SCAN" = "true" ] ; then
 
     sleep_seconds=$(( $target - $current ))
 
+    echo "Sleeping for $sleep_seconds seconds."
     sleep $sleep_seconds
+
 
     /usr/bin/pleg-watcher
     sleep 1d
