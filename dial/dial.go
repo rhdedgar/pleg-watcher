@@ -3,8 +3,14 @@ package dial
 import (
 	"fmt"
 	"net/rpc"
+	"strconv"
+	"time"
 
 	"github.com/rhdedgar/pleg-watcher/config"
+)
+
+var (
+	minConDay = 0
 )
 
 // CallInfoSrv passes information about a container (arg1)
@@ -46,7 +52,10 @@ func GetContainerInfo() []byte {
 		fmt.Println("Error dialing container info socket:", config.SockPath, err)
 	}
 
-	err = client.Call(functionName, "", &reply)
+	curTime := time.Now()
+	dayAgo := curTime.AddDate(0, 0, minConDay).String()
+
+	err = client.Call(functionName, dayAgo, &reply)
 	if err != nil {
 		fmt.Println("Error calling server function", err)
 	}
@@ -58,4 +67,13 @@ func GetContainerInfo() []byte {
 	}
 
 	return reply
+}
+
+func init() {
+	var err error
+
+	minConDay, err = strconv.Atoi(config.MinConDay)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

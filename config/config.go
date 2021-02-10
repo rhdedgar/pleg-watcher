@@ -31,4 +31,6 @@ var (
 	OutFile = os.Getenv("OUT_FILE")
 	// ScanDirs is a comma-separated list of directories to include in scheduled host filesystem scans.
 	ScanDirs = os.Getenv("HOST_SCAN_DIRS")
+	// MinConDay is the minimum number of days a container has been running in order to be included in scheduled container scans.
+	MinConDay = os.Getenv("MIN_CON_DAY")
 )
