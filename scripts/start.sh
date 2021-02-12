@@ -21,7 +21,7 @@ if [ ! -S /clam/clamd.sock ]; then
   done
 fi
 
-if [ "SCHEDULED_SCAN" = "true" ] ; then
+if [ "$SCHEDULED_SCAN" = "true" ] ; then
   echo "Evironment set to scheduled scan."
   
   hour_stagger="$((RANDOM % 24))"
@@ -35,7 +35,6 @@ if [ "SCHEDULED_SCAN" = "true" ] ; then
 
     echo "Sleeping for $sleep_seconds seconds."
     sleep $sleep_seconds
-
 
     /usr/bin/pleg-watcher
     sleep 1d

@@ -38,7 +38,7 @@ func ScheduledContainerScan() {
 func ScheduledHostScan() {
 	scanDirs := strings.Split(config.ScanDirs, ",")
 
-	fmt.Printf("%v top-level directories to scan", len(scanDirs))
+	fmt.Printf("%v top-level directories to scan\n", len(scanDirs))
 
 	for _, scanDir := range scanDirs {
 		fmt.Println("Scanning directory:", scanDir)
