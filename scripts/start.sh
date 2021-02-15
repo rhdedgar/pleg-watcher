@@ -24,27 +24,36 @@ fi
 if [ "$SCHEDULED_SCAN" = "true" ] ; then
   echo "Evironment set to scheduled scan."
   
-  hour_stagger="$((RANDOM % 24))"
-  minute_stagger="$((RANDOM % 60))"
+  # Stagger the start time of the scheduled scan by a random number of hours & minutes.
+  # Times are calculated in seconds.
+  hour_stagger="$((RANDOM % 24 * 60 * 60))"
+  minute_stagger="$((RANDOM % 24 * 60))"
 
   while true; do
     current_time=$(date +%s)
     selection_time=$(date -d "this $SCHEDULED_SCAN_DAY" '+%s')
 
-    sleep_seconds=$(( $target - $current ))
+    sleep_seconds=$(( selection_time - current_time + hour_stagger + minute_stagger ))
 
     echo "Sleeping for $sleep_seconds seconds."
     sleep $sleep_seconds
 
     /usr/bin/pleg-watcher
+    echo "Sleeping 1d before reassessing when the next scan will take place."
     sleep 1d
   done
+else
+  echo This container hosts the following applications:
+  echo
+  echo '/usr/bin/pleg-watcher'
+  echo
+  echo 'Always listen for PLEG events from sdjournal.'
+  echo '----------------'
+  /usr/bin/pleg-watcher
 fi
 
-echo This container hosts the following applications:
-echo
-echo '/usr/bin/pleg-watcher'
-echo
-echo 'Always listen for PLEG events from sdjournal.'
-echo '----------------'
-/usr/bin/pleg-watcher
+echo "Both scheduled and active scanning blocks have exited. This shouldn't happen."
+echo "Staying active for troubleshooting."
+while true; do
+  sleep 10
+done
