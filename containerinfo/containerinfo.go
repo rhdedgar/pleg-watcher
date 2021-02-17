@@ -97,8 +97,10 @@ func init() {
 		Path = "/usr/bin/docker"
 		UseDocker = true
 	}
+	// Make the environment variable into something usable (a string array) that we can check for skippable prefixes.
 	skipPrefix = strings.Split(config.SkipNamespacePrefixes, ",")
 
+	// Pre-populate a map which will be used like a set to determine if an NS should be skipped.
 	for _, i := range strings.Split(config.SkipNamespaces, ",") {
 		skipNS[i] = struct{}{}
 	}
