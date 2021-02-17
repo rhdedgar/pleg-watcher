@@ -2,23 +2,21 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 
+	"github.com/rhdedgar/pleg-watcher/config"
 	"github.com/rhdedgar/pleg-watcher/models"
 	"github.com/rhdedgar/pleg-watcher/scheduler"
 	"github.com/rhdedgar/pleg-watcher/watcher"
 )
 
 var (
-	activeScan        = os.Getenv("ACTIVE_SCAN")
-	scheduledScan     = os.Getenv("SCHEDULED_SCAN")
-	hostScanFrequency = os.Getenv("HOST_SCAN_FREQUENCY")
-	podScanFrequency  = os.Getenv("POD_SCAN_FREQUENCY")
+	activeScan    = config.ActiveScan
+	scheduledScan = config.ScheduledScan
 )
 
 func main() {
-	fmt.Println("pleg-watcher v0.0.51")
+	fmt.Println("pleg-watcher v0.0.52")
 
 	if activeScan != "" {
 		var line models.LineInfo

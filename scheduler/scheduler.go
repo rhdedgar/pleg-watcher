@@ -57,15 +57,5 @@ func ScheduledHostScan() {
 		if err := scanner.AcquireAndScan(); err != nil {
 			fmt.Println("Error returned from scanner: ", err)
 		}
-		/*
-			err = unix.Unmount(scanDir, 0)
-			if err != nil {
-				fmt.Println("Error unmounting scanDir after scanning: ", err)
-			}
-
-			os.Remove(scanDir)
-			if err != nil {
-				fmt.Println("Error removing scanDir after unmounting: ", err)
-			}*/
 	}
 }

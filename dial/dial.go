@@ -21,20 +21,22 @@ func CallInfoSrv(containerID, functionName string) []byte {
 	// functionName is the name of the RPC function to call from the container info server.
 	functionName = "InfoSrv." + functionName
 
+	fmt.Println("Calling: ", functionName)
+
 	client, err := rpc.DialHTTP("unix", config.SockPath)
 	if err != nil {
-		fmt.Println("Error dialing container info socket:", config.SockPath, err)
+		fmt.Println("Error dialing container info socket: ", config.SockPath, err)
 	}
 
 	err = client.Call(functionName, &containerID, &reply)
 	if err != nil {
-		fmt.Println("Error calling server function", err)
+		fmt.Println("Error calling server function: ", functionName, err)
 	}
 
 	if len(reply) > 0 {
-		fmt.Println("A reply was returned")
+		fmt.Printf("A reply was returned from %v.\n", functionName)
 	} else {
-		fmt.Println("The reply was empty")
+		fmt.Printf("The reply from %v was empty.\n", functionName)
 	}
 	return reply
 }
@@ -49,7 +51,7 @@ func GetContainerInfo() []byte {
 
 	client, err := rpc.DialHTTP("unix", config.SockPath)
 	if err != nil {
-		fmt.Println("Error dialing container info socket:", config.SockPath, err)
+		fmt.Println("Error dialing container info socket: ", config.SockPath, err)
 	}
 
 	curTime := time.Now()
@@ -57,23 +59,29 @@ func GetContainerInfo() []byte {
 
 	err = client.Call(functionName, dayAgo, &reply)
 	if err != nil {
-		fmt.Println("Error calling server function", err)
+		fmt.Println("Error calling server function: ", functionName, err)
 	}
 
 	if len(reply) > 0 {
-		fmt.Println("A reply was returned")
+		fmt.Printf("A reply was returned from %v.", functionName)
 	} else {
-		fmt.Println("The reply was empty")
+		fmt.Printf("The reply from %v was empty.", functionName)
 	}
 
 	return reply
 }
 
 func init() {
-	var err error
+	if config.ScheduledScan == "true" {
+		if config.MinConDay == "" {
+			return
+		}
 
-	minConDay, err = strconv.Atoi(config.MinConDay)
-	if err != nil {
-		fmt.Println(err)
+		var err error
+
+		minConDay, err = strconv.Atoi(config.MinConDay)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

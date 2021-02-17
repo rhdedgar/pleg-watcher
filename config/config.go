@@ -33,4 +33,8 @@ var (
 	ScanDirs = os.Getenv("HOST_SCAN_DIRS")
 	// MinConDay is the minimum number of days a container has been running in order to be included in scheduled container scans.
 	MinConDay = os.Getenv("MIN_CON_DAY")
+	// ActiveScan is set to true if this instance of the program is to actively watch for new containers to scan.
+	ActiveScan = os.Getenv("ACTIVE_SCAN")
+	// ScheduledScan is set to true if this instance of the program is to scan existing containers on a specified basis.
+	ScheduledScan = os.Getenv("SCHEDULED_SCAN")
 )
