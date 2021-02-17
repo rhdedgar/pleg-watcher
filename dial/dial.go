@@ -21,7 +21,7 @@ func CallInfoSrv(containerID, functionName string) []byte {
 	// functionName is the name of the RPC function to call from the container info server.
 	functionName = "InfoSrv." + functionName
 
-	fmt.Println("Calling: ", functionName)
+	fmt.Printf("Calling %v for %v\n", functionName, containerID)
 
 	client, err := rpc.DialHTTP("unix", config.SockPath)
 	if err != nil {
