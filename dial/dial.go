@@ -13,7 +13,7 @@ var (
 	minConDay = 0
 )
 
-// CallInfoSrv passes information about a container (arg1)
+// CallInfoSrv passes a container ID (arg1)
 // to an RPC function (arg2), and returns information about that container.
 func CallInfoSrv(containerID, functionName string) []byte {
 	var reply []byte
@@ -41,9 +41,9 @@ func CallInfoSrv(containerID, functionName string) []byte {
 	return reply
 }
 
-// GetContainerInfo queries for containers running on the host for more than 24 hours
+// GetActiveContainers queries for containers running on the host for more than 24 hours
 // and populates a []btye slice of container IDs
-func GetContainerInfo() []byte {
+func GetActiveContainers() []byte {
 	var reply []byte
 
 	// functionName is the name of the RPC function to call from the container info server.

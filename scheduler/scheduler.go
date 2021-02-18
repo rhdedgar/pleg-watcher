@@ -18,7 +18,7 @@ import (
 func ScheduledContainerScan() {
 	var crictlOutput crictilspec.Containers
 
-	jbyte := dial.GetContainerInfo()
+	jbyte := dial.GetActiveContainers()
 
 	if len(jbyte) > 0 {
 		fmt.Println("Container list returned empty.")

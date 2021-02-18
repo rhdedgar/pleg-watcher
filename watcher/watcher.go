@@ -43,6 +43,9 @@ func Format(inputStr string) (PLEGEvent, error) {
 			return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n", err)
 		}
 
+		if plegEvent == (PLEGEvent{}) {
+			return plegEvent, fmt.Errorf("The PLEGEvent structure is empty. Journalctl hyperkube may have changed.\n")
+		}
 	}
 	return plegEvent, nil
 }
