@@ -43,6 +43,7 @@ if [ "$SCHEDULED_SCAN" = "true" ] ; then
     sleep 1d
   done
 else
+  echo "Evironment set to active scan."
   echo This container hosts the following applications:
   echo
   echo '/usr/bin/pleg-watcher'

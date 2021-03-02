@@ -22,6 +22,7 @@ func ScheduledContainerScan() {
 
 	if len(jbyte) > 0 {
 		fmt.Println("Container list returned empty.")
+		return
 	}
 
 	if err := json.Unmarshal(jbyte, &crictlOutput); err != nil {
@@ -30,6 +31,10 @@ func ScheduledContainerScan() {
 
 	for _, container := range crictlOutput.Containers {
 		containerID := container.ID
+		if containerID == "" {
+			fmt.Println("crictilOutput container.ID is empty. Has crictl output changed?")
+			continue
+		}
 		containerinfo.ProcessContainer(containerID)
 	}
 }

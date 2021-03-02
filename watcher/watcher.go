@@ -57,12 +57,12 @@ func CheckOutput(line <-chan string) {
 		case inputStr := <-line:
 			plegEvent, err := Format(inputStr)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("Error returned from Format:", err)
 				continue
 			}
 
 			if err := containerinfo.ProcessContainer(plegEvent.Data); err != nil {
-				fmt.Println(err)
+				fmt.Println("Error returned from ProcessContainer: ", err)
 			}
 		}
 	}

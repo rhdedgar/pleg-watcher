@@ -18,6 +18,11 @@ var (
 func CallInfoSrv(containerID, functionName string) []byte {
 	var reply []byte
 
+	if containerID == "" {
+		fmt.Println("containerID cannot be empty.")
+		return reply
+	}
+
 	// functionName is the name of the RPC function to call from the container info server.
 	functionName = "InfoSrv." + functionName
 
@@ -26,6 +31,8 @@ func CallInfoSrv(containerID, functionName string) []byte {
 	client, err := rpc.DialHTTP("unix", config.SockPath)
 	if err != nil {
 		fmt.Println("Error dialing container info socket: ", config.SockPath, err)
+		fmt.Println("Skipping this container.")
+		return reply
 	}
 
 	err = client.Call(functionName, &containerID, &reply)
@@ -52,6 +59,7 @@ func GetActiveContainers() []byte {
 	client, err := rpc.DialHTTP("unix", config.SockPath)
 	if err != nil {
 		fmt.Println("Error dialing container info socket: ", config.SockPath, err)
+		return reply
 	}
 
 	curTime := time.Now()

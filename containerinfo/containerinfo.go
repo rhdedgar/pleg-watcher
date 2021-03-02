@@ -50,6 +50,10 @@ func ProcessContainer(containerID string) error {
 	var dCon docker.DockerContainer
 	var cCon models.Status
 
+	if containerID == "" {
+		return fmt.Errorf("Cannot process empty containerID.\n")
+	}
+
 	jbyte := dial.CallInfoSrv(containerID, "GetContainerInfo")
 
 	if len(jbyte) > 0 {
