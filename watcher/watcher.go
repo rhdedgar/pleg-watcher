@@ -54,7 +54,7 @@ func CheckOutput(line <-chan string) {
 	for {
 		select {
 		case inputStr := <-line:
-			fmt.Println(inputStr)
+			//fmt.Println(inputStr)
 			if !strings.Contains(inputStr, "ContainerStarted") {
 				continue
 			}
