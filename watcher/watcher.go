@@ -28,25 +28,24 @@ func QuoteVar(s, r string) string {
 func Format(inputStr string) (PLEGEvent, error) {
 	var plegEvent PLEGEvent
 
-	if strings.Contains(inputStr, "ContainerStarted") {
-		fmt.Println("Found container started event", inputStr)
+	fmt.Println("Found container started event", inputStr)
 
-		// Gather only the unquoted json of the PLEG Event.
-		out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
+	// Gather only the unquoted json of the PLEG Event.
+	out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
 
-		// Quote the json so it can be Unmarshaled into a struct
-		for _, item := range []string{"ID", "Type", "Data"} {
-			out = QuoteVar(out, item)
-		}
-
-		if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
-			return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n", err)
-		}
-
-		if plegEvent == (PLEGEvent{}) {
-			return plegEvent, fmt.Errorf("The PLEGEvent structure is empty. Journalctl hyperkube may have changed.\n")
-		}
+	// Quote the json so it can be Unmarshaled into a struct
+	for _, item := range []string{"ID", "Type", "Data"} {
+		out = QuoteVar(out, item)
 	}
+
+	if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
+		return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n", err)
+	}
+
+	if plegEvent == (PLEGEvent{}) {
+		return plegEvent, fmt.Errorf("The PLEGEvent structure is empty. Journalctl hyperkube may have changed.\n")
+	}
+
 	return plegEvent, nil
 }
 
@@ -55,12 +54,17 @@ func CheckOutput(line <-chan string) {
 	for {
 		select {
 		case inputStr := <-line:
+			fmt.Println(inputStr)
+			if !strings.Contains(inputStr, "ContainerStarted") {
+				continue
+			}
+
 			plegEvent, err := Format(inputStr)
+
 			if err != nil {
 				fmt.Println("Error returned from Format:", err)
 				continue
 			}
-
 			if err := containerinfo.ProcessContainer(plegEvent.Data); err != nil {
 				fmt.Println("Error returned from ProcessContainer: ", err)
 			}
