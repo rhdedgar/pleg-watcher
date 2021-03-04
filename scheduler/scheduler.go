@@ -27,6 +27,7 @@ func ScheduledContainerScan() {
 
 	if err := json.Unmarshal(jbyte, &crictlOutput); err != nil {
 		fmt.Println("Error unmarshalling crictl list output json: ", err)
+		return
 	}
 
 	for _, container := range crictlOutput.Containers {
@@ -45,16 +46,18 @@ func ScheduledHostScan() {
 
 	fmt.Printf("%v top-level directories to scan\n", len(scanDirs))
 
+	scannerOptions := clscmd.NewDefaultManagedScannerOptions()
+	scannerOptions.PostResultURL = config.PostResultURL
+	scannerOptions.OutFile = config.OutFile
+
 	for _, scanDir := range scanDirs {
 		fmt.Println("Scanning directory:", scanDir)
 
-		scannerOptions := clscmd.NewDefaultManagedScannerOptions()
-		scannerOptions.PostResultURL = config.PostResultURL
-		scannerOptions.OutFile = config.OutFile
 		scannerOptions.ScanDir = scanDir
 
 		if err := scannerOptions.Validate(); err != nil {
 			fmt.Println("Error validating scanner options: ", err)
+			continue
 		}
 
 		scanner := mainscan.NewDefaultManagedScanner(*scannerOptions)

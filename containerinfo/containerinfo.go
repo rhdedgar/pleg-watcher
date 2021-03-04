@@ -57,8 +57,7 @@ func ProcessContainer(containerID string) error {
 	jbyte := dial.CallInfoSrv(containerID, "GetContainerInfo")
 
 	if len(jbyte) > 0 {
-		fmt.Println("Bytes returned empty.")
-		return nil
+		return fmt.Errorf("Bytes returned empty.\n")
 	}
 
 	if UseDocker {
