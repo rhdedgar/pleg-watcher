@@ -60,11 +60,13 @@ func CheckOutput(line <-chan string) {
 			}
 
 			plegEvent, err := Format(inputStr)
-
 			if err != nil {
 				fmt.Println("Error returned from Format:", err)
 				continue
 			}
+
+			fmt.Println("Container has started; sending ID to ProcessContainer: ", plegEvent.Data)
+
 			if err := containerinfo.ProcessContainer(plegEvent.Data); err != nil {
 				fmt.Println("Error returned from ProcessContainer: ", err)
 			}
