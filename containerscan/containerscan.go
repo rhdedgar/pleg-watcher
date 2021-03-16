@@ -168,7 +168,7 @@ func getCrioLayers(containerID string) ([]string, error) {
 
 	scanOut, err := GetLayerInfo(mountPath)
 	if err != nil {
-		fmt.Println(err)
+		return crioLayers, fmt.Errorf("Error getting crioLayers: %v\n", err)
 	}
 
 	layers = append(layers, CustReg(scanOut, `lowerdir=(.*),upperdir`)...)

@@ -8,7 +8,7 @@ import (
 	clscmd "github.com/rhdedgar/pleg-watcher/cmd"
 	"github.com/rhdedgar/pleg-watcher/config"
 	"github.com/rhdedgar/pleg-watcher/containerinfo"
-	"github.com/rhdedgar/pleg-watcher/crictilspec"
+	"github.com/rhdedgar/pleg-watcher/crictlspec"
 	"github.com/rhdedgar/pleg-watcher/dial"
 	mainscan "github.com/rhdedgar/pleg-watcher/scanner"
 )
@@ -16,7 +16,7 @@ import (
 // ScheduledContainerScan gets a list of currently running containers from
 // the container-info sidecar, and queus them for scanning.
 func ScheduledContainerScan() {
-	var crictlOutput crictilspec.Containers
+	var crictlOutput crictlspec.Containers
 
 	jbyte := dial.GetActiveContainers()
 

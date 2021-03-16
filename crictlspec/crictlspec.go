@@ -1,4 +1,4 @@
-package crictilspec
+package crictlspec
 
 type Containers struct {
 	Containers []Container `json:"containers"`
