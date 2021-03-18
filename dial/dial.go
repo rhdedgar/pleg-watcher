@@ -41,7 +41,7 @@ func CallInfoSrv(containerID, functionName string) []byte {
 	}
 
 	if len(reply) > 0 {
-		fmt.Printf("A reply was returned from %v.\n", functionName)
+		fmt.Printf("A reply was returned from %v: %v\n", functionName, string(reply))
 	} else {
 		fmt.Printf("The reply from %v was empty.\n", functionName)
 	}
@@ -71,7 +71,7 @@ func GetActiveContainers() []byte {
 	}
 
 	if len(reply) > 0 {
-		fmt.Printf("A reply was returned from %v.", functionName)
+		fmt.Printf("A reply was returned from %v: %v\n", functionName, string(reply))
 	} else {
 		fmt.Printf("The reply from %v was empty.", functionName)
 	}
