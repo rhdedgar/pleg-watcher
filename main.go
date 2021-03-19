@@ -16,7 +16,7 @@ var (
 )
 
 func main() {
-	fmt.Println("pleg-watcher v0.0.63")
+	fmt.Println("pleg-watcher v0.0.64")
 
 	if activeScan != "" {
 		var line models.LineInfo

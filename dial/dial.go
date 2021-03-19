@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	client    *rpc.Client
 	minConDay = 0
 )
 
@@ -28,14 +29,7 @@ func CallInfoSrv(containerID, functionName string) []byte {
 
 	fmt.Printf("Calling %v for %v\n", functionName, containerID)
 
-	client, err := rpc.Dial("unix", config.SockPath)
-	if err != nil {
-		fmt.Println("Error dialing container info socket: ", config.SockPath, err)
-		fmt.Println("Skipping this container.")
-		return reply
-	}
-
-	err = client.Call(functionName, &containerID, &reply)
+	err := client.Call(functionName, &containerID, &reply)
 	if err != nil {
 		fmt.Println("Error calling server function: ", functionName, err)
 	}
@@ -56,16 +50,10 @@ func GetActiveContainers() []byte {
 	// functionName is the name of the RPC function to call from the container info server.
 	functionName := "InfoSrv.GetContainers"
 
-	client, err := rpc.Dial("unix", config.SockPath)
-	if err != nil {
-		fmt.Println("Error dialing container info socket: ", config.SockPath, err)
-		return reply
-	}
-
 	curTime := time.Now()
 	dayAgo := curTime.AddDate(0, 0, minConDay).String()
 
-	err = client.Call(functionName, dayAgo, &reply)
+	err := client.Call(functionName, dayAgo, &reply)
 	if err != nil {
 		fmt.Println("Error calling server function: ", functionName, err)
 	}
@@ -80,16 +68,32 @@ func GetActiveContainers() []byte {
 }
 
 func init() {
+	var err error
+
+	for i := 0; i <= 5; i++ {
+		if i >= 5 {
+			fmt.Println("Error: dialing containerinfo socket has reached maximum number of allowed retry attempts.")
+			break
+		}
+
+		client, err = rpc.Dial("unix", config.SockPath)
+		if err != nil {
+			fmt.Println("Error dialing container info socket: ", config.SockPath, err)
+			fmt.Printf("Waiting another %v seconds before trying again. \n", i)
+			time.Sleep(time.Duration(i) * time.Second)
+			continue
+		}
+		break
+	}
+
 	if config.ScheduledScan == "true" {
 		if config.MinConDay == "" {
 			return
 		}
 
-		var err error
-
 		minConDay, err = strconv.Atoi(config.MinConDay)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error parsing minimum container age environment variable: ", err)
 		}
 	}
 }
