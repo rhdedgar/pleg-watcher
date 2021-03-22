@@ -56,7 +56,7 @@ func ProcessContainer(containerID string) error {
 
 	jbyte := dial.CallInfoSrv(containerID, "GetContainerInfo")
 
-	if len(jbyte) > 0 {
+	if len(jbyte) <= 0 {
 		return fmt.Errorf("Bytes returned empty.\n")
 	}
 
