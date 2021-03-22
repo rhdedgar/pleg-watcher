@@ -29,14 +29,18 @@ var (
 // that we don't want to scan.
 func skipNamespace(ns string) bool {
 	// If the provided NS is in the skip map, return true
-	if _, ok := skipNS[ns]; ok {
-		return true
+	if nsList != "" {
+		if _, ok := skipNS[ns]; ok {
+			return true
+		}
 	}
 
 	// If the provided NS starts with a prefix in the restricted prefix list, return true
-	for _, i := range skipPrefix {
-		if strings.HasPrefix(ns, i) {
-			return true
+	if nsPrefixList != "" {
+		for _, i := range skipPrefix {
+			if strings.HasPrefix(ns, i) {
+				return true
+			}
 		}
 	}
 
