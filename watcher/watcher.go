@@ -46,8 +46,13 @@ func Format(inputStr string) (PLEGEvent, error) {
 
 	fmt.Println("Found container started event", inputStr)
 
+	// If the string isn't formatted the way we expect it to be, return without risking an out of range runtime error.
+	if !strings.Contains(inputStr, "&") {
+		return plegEvent, fmt.Errorf("No '&' in string: Container Started Event format may have changed.\n")
+	}
+
 	// Gather only the unquoted json of the PLEG Event.
-	out := strings.SplitAfter(inputStr, "&pleg.PodLifecycleEvent")[1]
+	out := strings.SplitAfter(inputStr, "&")[1]
 
 	// Quote the json so it can be Unmarshaled into a struct
 	for _, item := range []string{"ID", "Type", "Data"} {
