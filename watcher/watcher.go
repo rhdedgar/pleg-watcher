@@ -60,7 +60,7 @@ func Format(inputStr string) (PLEGEvent, error) {
 	}
 
 	if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
-		return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n", err)
+		return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n: out string was: %v\n", err, out)
 	}
 
 	if plegEvent == (PLEGEvent{}) {
