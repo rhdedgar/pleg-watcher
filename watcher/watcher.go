@@ -28,16 +28,20 @@ import (
 	"github.com/rhdedgar/pleg-watcher/models"
 )
 
+var (
+	r = strings.NewReplacer(
+		" ", "\", \"",
+		":", "\":\"",
+		"{", "{\"",
+		"}", "\"}",
+	)
+)
+
 // PLEGEvent represents relevant data from Kubernetes Pod Lifecycle Event Generator messages.
 type PLEGEvent struct {
 	ID   string `json:"ID"`
 	Type string `json:"Type"`
 	Data string `json:"Data"`
-}
-
-// QuoteVar will quote the first occurrence of substring r found in original string s.
-func QuoteVar(s, r string) string {
-	return strings.Replace(s, r, "\""+r+"\"", 1)
 }
 
 // Format converts systemd output into a usable, JSON-compatible go struct
@@ -54,12 +58,14 @@ func Format(inputStr string) (PLEGEvent, error) {
 	// Gather only the unquoted json of the PLEG Event.
 	out := strings.SplitAfter(inputStr, "&")[1]
 
-	// Quote the json so it can be Unmarshaled into a struct
-	for _, item := range []string{"ID", "Type", "Data"} {
-		out = QuoteVar(out, item)
-	}
+	// Quoting this psuedo-json string so it can be Unmarshalled into a struct.
+	// starting string looks like this:
+	// {ID:63c50f73-650e-47ad-bfad-aa70a223158e Type:ContainerStarted Data:f41b75207ef6cfe375fe0080576b1ebd14b3752cdb80537653ad59e4335455b5}
+	// and is replaced with this:
+	// {"ID":"63c50f73-650e-47ad-bfad-aa70a223158e", "Type":"ContainerStarted", "Data":"f41b75207ef6cfe375fe0080576b1ebd14b3752cdb80537653ad59e4335455b5"}
+	quoted := r.Replace(out)
 
-	if err := json.Unmarshal([]byte(out), &plegEvent); err != nil {
+	if err := json.Unmarshal([]byte(quoted), &plegEvent); err != nil {
 		return plegEvent, fmt.Errorf("Error unmarshalling plegEvent json: %v\n: out string was: %v\n", err, out)
 	}
 
