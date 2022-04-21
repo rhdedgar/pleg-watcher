@@ -12,19 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal
 
-ADD scripts/ /usr/local/bin/
+# begin build container definition
+FROM registry.access.redhat.com/ubi8/ubi-minimal as build
 
+# Install prerequisites 
 RUN microdnf install -y golang \
                    gcc \
                    git \
                    systemd-libs \
-                   systemd-devel && \
-    microdnf clean all
+                   systemd-devel
 
 ENV GOBIN=/bin \
     GOPATH=/go
+
+# install pleg-watcher
+RUN /usr/bin/go install github.com/rhdedgar/pleg-watcher@master
+
+
+# begin run container definition
+FROM registry.access.redhat.com/ubi8/ubi-minimal as run
+
+ADD scripts/ /usr/local/bin/
+
+COPY --from=build /bin/pleg-watcher /usr/local/bin
 
 # Creating mount points for crio and docker sockets and dependencies.
 RUN mkdir -p /host/usr/bin \
@@ -35,13 +46,9 @@ RUN mkdir -p /host/usr/bin \
              /etc/sysconfig && \
     touch /var/run/docker.sock \
           /var/run/crio/crio.sock \
-          /usr/bin/docker-current \ 
-          /etc/sysconfig/docker && \
-    /usr/bin/go install github.com/rhdedgar/pleg-watcher@latest && \
-    cd && \
-    rm -rf /go
+          /usr/bin/docker-current \
+          /etc/sysconfig/docker
 
 USER 0
 
-# Start processes
 CMD /usr/local/bin/start.sh

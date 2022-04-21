@@ -38,7 +38,7 @@ if [ "$SCHEDULED_SCAN" = "true" ] ; then
     echo "Sleeping for $sleep_seconds seconds."
     sleep $sleep_seconds
 
-    /usr/bin/pleg-watcher
+    /usr/local/bin/pleg-watcher
     echo "Sleeping 1d before reassessing when the next scan will take place."
     sleep 1d
   done
@@ -50,7 +50,7 @@ else
   echo
   echo 'Always listen for PLEG events from sdjournal.'
   echo '----------------'
-  /usr/bin/pleg-watcher
+  /usr/local/bin/pleg-watcher
 fi
 
 echo "Both scheduled and active scanning blocks have exited. This shouldn't happen."
